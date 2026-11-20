@@ -3,6 +3,7 @@ import { GraduationCap, Code2, ArrowDown } from "lucide-react";
 import { usePortfolio } from "../../context/PortfolioContext";
 import {
   formatBgStyle,
+  formatBgUrl,
   FALLBACK_JOURNEY,
   DEFAULT_BROTOTYPE_SPRINTS
 } from "../../constants/fallbackData";
@@ -176,6 +177,25 @@ export const JourneySection = () => {
             </div>
           </div>
         </div>
+
+        {/* Journey Bottom Wide Banner Image Box */}
+        {(settings.journeyBanner || "/img/sitting_working.jpeg") && (
+          <div className="journey-banner-wrapper">
+            <div className="journey-banner-box">
+              <img
+                src={formatBgUrl(settings.journeyBanner) || "/img/sitting_working.jpeg"}
+                alt="Workspace & Coding Journey"
+                className="journey-banner-img"
+                loading="lazy"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = "/img/sitting_working.jpeg";
+                }}
+              />
+              <div className="journey-banner-overlay" aria-hidden="true"></div>
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );

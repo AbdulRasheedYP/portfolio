@@ -13,6 +13,7 @@ export const BackgroundsTab = () => {
     bgHero: "",
     bgAbout: "",
     bgJourney: "",
+    journeyBanner: "",
     bgSkills: "",
     bgServices: "",
     bgProjects: "",
@@ -33,6 +34,7 @@ export const BackgroundsTab = () => {
         bgHero: settings.bgHero || "",
         bgAbout: settings.bgAbout || "",
         bgJourney: settings.bgJourney || "",
+        journeyBanner: settings.journeyBanner || "",
         bgSkills: settings.bgSkills || "",
         bgServices: settings.bgServices || "",
         bgProjects: settings.bgProjects || "",
@@ -56,6 +58,7 @@ export const BackgroundsTab = () => {
         bgHero: formData.bgHero || "",
         bgAbout: formData.bgAbout || "",
         bgJourney: formData.bgJourney || "",
+        journeyBanner: formData.journeyBanner || "",
         bgSkills: formData.bgSkills || "",
         bgServices: formData.bgServices || "",
         bgProjects: formData.bgProjects || "",
@@ -116,6 +119,12 @@ export const BackgroundsTab = () => {
               label="Journey Section Background"
               value={formData.bgJourney}
               onChange={(url) => setFormData({ ...formData, bgJourney: url })}
+              folder="backgrounds"
+            />
+            <ImageUploader
+              label="Journey Bottom Wide Banner"
+              value={formData.journeyBanner}
+              onChange={(url) => setFormData({ ...formData, journeyBanner: url })}
               folder="backgrounds"
             />
             <ImageUploader

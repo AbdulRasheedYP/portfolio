@@ -17,6 +17,7 @@ My goal is to become a job-ready full-stack developer with strong fundamentals i
   bgHero: "/img/working_with_lap.jpg",
   bgAbout: "/img/working_with_lap.jpg",
   bgJourney: "",
+  journeyBanner: "/img/sitting_working.jpeg",
   bgSkills: "/img/lap.jpg",
   bgServices: "/img/lap.jpg",
   bgProjects: "/img/lap.jpg",

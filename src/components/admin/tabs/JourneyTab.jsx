@@ -124,8 +124,19 @@ export const JourneyTab = () => {
         // Existing Firestore Document
         await updateJourneyDoc(editingSprint.id, payload);
         toast.success(`Updated "${sprintForm.period}: ${sprintForm.title}"!`);
+      } else if (editingSprint && editingSprint.id && editingSprint.id.startsWith("sp-") && sprintDocs.length === 0) {
+        // First-time edit of default: persist all default sprints while applying the user's edits
+        for (const def of DEFAULT_BROTOTYPE_SPRINTS) {
+          if (def.id === editingSprint.id) {
+            await addJourneyDoc(payload);
+          } else {
+            const { id: _ignore, ...rest } = def;
+            await addJourneyDoc(rest);
+          }
+        }
+        toast.success(`Saved all sprints to Firebase with your updates to "${sprintForm.period}"!`);
       } else {
-        // New Document or saving a modified default sprint
+        // New Document
         await addJourneyDoc(payload);
         toast.success(`Saved "${sprintForm.period}: ${sprintForm.title}" to Firebase!`);
       }
@@ -141,14 +152,19 @@ export const JourneyTab = () => {
   const handleDeleteSprint = async (item) => {
     if (!window.confirm(`Delete "${item.period}: ${item.title}" from timeline?`)) return;
 
-    if (!item.id || item.id.startsWith("sp-")) {
-      toast.info("This is a built-in default item. Save any custom sprint to start overriding defaults.");
-      return;
-    }
-
     setDeletingSprintId(item.id);
     try {
-      await deleteJourneyDoc(item.id);
+      if (item.id && !item.id.startsWith("sp-")) {
+        await deleteJourneyDoc(item.id);
+      } else if (sprintDocs.length === 0) {
+        // Persist all other defaults to Firebase except this deleted one
+        for (const def of DEFAULT_BROTOTYPE_SPRINTS) {
+          if (def.id !== item.id) {
+            const { id: _ignore, ...rest } = def;
+            await addJourneyDoc(rest);
+          }
+        }
+      }
       if (editingSprint && editingSprint.id === item.id) {
         handleCancelSprintEdit();
       }

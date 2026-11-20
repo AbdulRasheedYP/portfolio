@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { usePortfolio } from "../../context/PortfolioContext";
-import { formatBgStyle } from "../../constants/fallbackData";
+import { formatBgStyle, formatBgUrl } from "../../constants/fallbackData";
 
 export const ProjectsSection = () => {
   const { projects, settings } = usePortfolio();

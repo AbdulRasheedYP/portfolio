@@ -13,11 +13,11 @@ export const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const from = location.state?.from?.pathname || "/admin";
+  const from = location.state?.from?.pathname || "/rasheed-portal";
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate("/admin", { replace: true });
+      navigate("/rasheed-portal", { replace: true });
     }
   }, [isAuthenticated, navigate]);
 

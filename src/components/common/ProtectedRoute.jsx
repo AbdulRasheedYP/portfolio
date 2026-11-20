@@ -17,7 +17,7 @@ export const ProtectedRoute = ({ children }) => {
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/admin/login" state={{ from: location }} replace />;
+    return <Navigate to="/rasheed-portal/login" state={{ from: location }} replace />;
   }
 
   return children;

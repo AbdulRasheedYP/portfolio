@@ -767,35 +767,6 @@ export const JourneyTab = () => {
               folder="backgrounds"
             />
 
-            {/* Quick Presets from Workspace */}
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-2">
-                Or pick from existing workspace photos:
-              </label>
-              <div className="flex flex-wrap gap-2">
-                {[
-                  { name: "Sitting Working", url: "/img/sitting_working.jpeg" },
-                  { name: "Office", url: "/img/office.png" },
-                  { name: "Team Photo", url: "/img/team.jpeg" },
-                  { name: "Working With Lap", url: "/img/working_with_lap.jpg" },
-                  { name: "Desk Setup", url: "/img/lap.jpg" }
-                ].map((preset) => (
-                  <button
-                    key={preset.url}
-                    type="button"
-                    onClick={() => setBannerUrl(preset.url)}
-                    className={`text-xs px-3 py-1.5 rounded-lg border transition-all ${
-                      bannerUrl === preset.url
-                        ? "bg-primary/20 border-primary text-primary font-bold"
-                        : "bg-slate-800/80 border-white/10 text-slate-300 hover:text-white hover:bg-slate-700"
-                    }`}
-                  >
-                    {preset.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-
             {/* Live Preview Box */}
             {bannerUrl && (
               <div className="space-y-2">

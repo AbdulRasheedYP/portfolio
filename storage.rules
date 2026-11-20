@@ -2,9 +2,7 @@ rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
     function isAdmin() {
-      return request.auth != null && (
-        request.auth.token.email == "abdulrasheed5140@gmail.com"
-      );
+      return request.auth != null;
     }
 
     // Public files can be viewed by anyone; uploads and deletions require admin authentication

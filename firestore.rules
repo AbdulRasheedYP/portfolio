@@ -2,9 +2,7 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     function isAdmin() {
-      return request.auth != null && (
-        request.auth.token.email == "abdulrasheed5140@gmail.com"
-      );
+      return request.auth != null;
     }
 
     // 1. Public Content: Anyone can read; only authenticated admin can create, update, or delete

@@ -1,7 +1,7 @@
 import React from "react";
 import { usePortfolio } from "../../context/PortfolioContext";
 import { useTypewriter } from "../../hooks/useTypewriter";
-import { formatBgUrl } from "../../constants/fallbackData";
+import { formatBgStyle } from "../../constants/fallbackData";
 
 export const HeroSection = () => {
   const { settings, socials } = usePortfolio();
@@ -12,9 +12,7 @@ export const HeroSection = () => {
 
   const typedRole = useTypewriter(rolesList, 85, 45, 1700);
 
-  const heroStyle = settings.bgHero
-    ? { backgroundImage: `url('${formatBgUrl(settings.bgHero)}')` }
-    : undefined;
+  const heroStyle = formatBgStyle(settings.bgHero);
 
   return (
     <section id="home" className="hero" style={heroStyle}>

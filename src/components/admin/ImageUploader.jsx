@@ -102,7 +102,7 @@ export const ImageUploader = ({
           <div className="flex items-center justify-between text-xs text-slate-400">
             <span className="inline-flex items-center gap-1.5">
               <Loader2 className="w-3.5 h-3.5 text-primary animate-spin" />
-              Uploading to Firebase Storage...
+              Uploading & Processing Media...
             </span>
             <span className="font-semibold text-primary">{progress}%</span>
           </div>

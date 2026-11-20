@@ -48,7 +48,7 @@ export const PortfolioProvider = ({ children }) => {
     const unsubscribes = [];
 
     try {
-      // 1. Settings listener
+      // 1. Settings listener (general, backgrounds, and gallery docs)
       const unsubSettings = onSnapshot(
         doc(db, "settings", "general"),
         (snap) => {
@@ -62,9 +62,43 @@ export const PortfolioProvider = ({ children }) => {
             setIsLiveSynced(true);
           }
         },
-        (err) => console.warn("Firestore settings notice:", err.message)
+        (err) => console.warn("Firestore general settings notice:", err.message)
       );
       unsubscribes.push(unsubSettings);
+
+      const unsubBackgrounds = onSnapshot(
+        doc(db, "settings", "backgrounds"),
+        (snap) => {
+          if (snap.exists()) {
+            const data = snap.data();
+            setSettings((prev) => {
+              const updated = { ...prev, ...data };
+              setCachedData("settings", updated);
+              return updated;
+            });
+            setIsLiveSynced(true);
+          }
+        },
+        (err) => console.warn("Firestore backgrounds notice:", err.message)
+      );
+      unsubscribes.push(unsubBackgrounds);
+
+      const unsubGallery = onSnapshot(
+        doc(db, "settings", "gallery"),
+        (snap) => {
+          if (snap.exists()) {
+            const data = snap.data();
+            setSettings((prev) => {
+              const updated = { ...prev, ...data };
+              setCachedData("settings", updated);
+              return updated;
+            });
+            setIsLiveSynced(true);
+          }
+        },
+        (err) => console.warn("Firestore gallery notice:", err.message)
+      );
+      unsubscribes.push(unsubGallery);
 
       // 2. Skills listener
       const unsubSkills = onSnapshot(

@@ -19,7 +19,14 @@ My goal is to become a job-ready full-stack developer with strong fundamentals i
   bgSkills: "/img/lap.jpg",
   bgServices: "/img/lap.jpg",
   bgProjects: "/img/lap.jpg",
-  bgContact: "/img/team.jpeg"
+  bgContact: "/img/team.jpeg",
+  bgGal1: "/img/elephant.png",
+  bgGal2: "/img/firnds.jpeg",
+  bgGal3: "/img/office.png",
+  bgGal4: "/img/sitting_working.jpeg",
+  bgGal5: "/img/team.jpeg",
+  bgGal6: "/img/working.jpeg",
+  bgGal7: "/img/working_with_lap.jpg"
 };
 
 export const formatBgUrl = (url) => {
@@ -36,6 +43,15 @@ export const formatBgUrl = (url) => {
     return trimmed;
   }
   return `/${trimmed}`;
+};
+
+export const formatBgStyle = (url) => {
+  if (!url || typeof url !== "string" || !url.trim() || url.trim() === "none") {
+    return { backgroundImage: "none" };
+  }
+  const formatted = formatBgUrl(url);
+  if (!formatted) return { backgroundImage: "none" };
+  return { backgroundImage: `url('${formatted}')` };
 };
 
 export const FALLBACK_SKILLS = [
@@ -83,8 +99,25 @@ export const FALLBACK_PROJECTS = [
     title: "E-Commerce Platform",
     category: "python",
     description: "Full-featured footwear e-commerce platform with offer coupons, wishlist, cart, order tracking, custom admin dashboard, and automated wallet refund system.",
-    longDescription: "Shoedrop is a robust full-stack e-commerce application built using Django and PostgreSQL. It features a complete online shopping experience including product catalog filtering, cart & wishlist management, promotional offer coupon engines, and user wallet integration with automated refunds. On the management side, it includes a custom administrative dashboard for tracking orders, managing product stock, handling discount coupons, and controlling user accounts",
-    image: "https://firebasestorage.googleapis.com/v0/b/portfolio-79a11.firebasestorage.app/o/projects%2F1787486603957_Screenshot%202026-01-23%20234547.png?alt=media&token=48f654f1-fbf2-416b-ad13-adfa79bb173f",
+    longDescription: "Shoedrop is a robust full-stack e-commerce application built using Django and PostgreSQL. It features a complete online shopping experience including product catalog filtering, cart & wishlist management, promotional offer coupon engines, and user wallet integration with automated refunds. On the management side, it includes a custom administrative dashboard for tracking orders, managing product stock, handling discount coupons, and controlling user accounts.",
+    image: "/img/shoedrop-1.png",
+    images: [
+      {
+        url: "/img/shoedrop-1.png",
+        title: "Product Catalog & Storefront",
+        desc: "Interactive storefront with category filtering, instant search, stock indicators, and dynamic price calculations."
+      },
+      {
+        url: "/img/shoedrop-2.png",
+        title: "Admin Management Dashboard",
+        desc: "Custom management console featuring sales analytics, inventory level control, coupon configuration, and order status updates."
+      },
+      {
+        url: "/img/shoedrop-3.png",
+        title: "Cart & Checkout Flow",
+        desc: "Streamlined multi-step checkout workflow with promotional coupon validation and instant wallet refund capabilities."
+      }
+    ],
     techStack: ["Python", "Django", "PostgreSQL", "Tailwind CSS", "JavaScript", "AWS EC2", "Nginx"],
     githubUrl: "https://github.com/Rashi0099/Shoedrop_E-Commerce_Platform.git",
     liveUrl: "https://github.com/Rashi0099/Shoedrop_E-Commerce_Platform.git",

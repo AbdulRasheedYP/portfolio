@@ -60,11 +60,18 @@ export const ProjectsTab = () => {
 
     const loadedImages = Array.isArray(project.images)
       ? project.images.map((img) => {
-          if (typeof img === "string") return { url: img, title: "", desc: "" };
+          if (typeof img === "string") {
+            const parts = img.split("|");
+            return {
+              url: parts[0]?.trim() || "",
+              title: parts[1]?.trim() || "",
+              desc: parts[2]?.trim() || ""
+            };
+          }
           return {
-            url: img.url || "",
-            title: img.title || "",
-            desc: img.desc || ""
+            url: img?.url || "",
+            title: img?.title || "",
+            desc: img?.desc || ""
           };
         })
       : [];
@@ -127,12 +134,14 @@ export const ProjectsTab = () => {
       .filter(Boolean);
 
     const cleanedImages = formData.images
-      .filter((img) => img.url && img.url.trim())
+      .filter((img) => img && img.url && img.url.trim())
       .map((img) => ({
         url: img.url.trim(),
-        title: img.title.trim(),
-        desc: img.desc.trim()
+        title: (img.title || "").trim(),
+        desc: (img.desc || "").trim()
       }));
+
+    const mainCover = formData.image.trim() || (cleanedImages.length > 0 ? cleanedImages[0].url : "");
 
     const payload = {
       title: formData.title.trim(),
@@ -140,7 +149,7 @@ export const ProjectsTab = () => {
       description: formData.description.trim(),
       longDescription: formData.longDescription.trim() || formData.description.trim(),
       techStack: techArray,
-      image: formData.image.trim(),
+      image: mainCover,
       githubUrl: formData.githubUrl.trim(),
       liveUrl: formData.liveUrl.trim(),
       features: featArray,

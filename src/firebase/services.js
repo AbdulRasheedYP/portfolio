@@ -22,6 +22,65 @@ export const fileToDataUrl = (file) => {
   });
 };
 
+// Auto-compress large images via HTML5 canvas for fast load and Firestore storage
+export const compressImage = (file, maxWidth = 1600, maxHeight = 900, quality = 0.75) => {
+  return new Promise((resolve) => {
+    const isImage =
+      (file.type && file.type.startsWith("image/")) ||
+      /\.(jpe?g|png|webp|gif|bmp|avif)$/i.test(file.name || "");
+
+    if (!isImage) {
+      return resolve(null);
+    }
+
+    const img = new Image();
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      img.src = e.target.result;
+    };
+
+    img.onload = () => {
+      try {
+        let width = img.width;
+        let height = img.height;
+
+        if (width > maxWidth || height > maxHeight) {
+          if (width / height > maxWidth / maxHeight) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          } else {
+            width = Math.round((width * maxHeight) / height);
+            height = maxHeight;
+          }
+        }
+
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, width, height);
+
+        let compressedDataUrl = canvas.toDataURL("image/jpeg", quality);
+
+        // If still > 350KB, compress further to 0.55 quality
+        if (compressedDataUrl.length > 350 * 1024) {
+          compressedDataUrl = canvas.toDataURL("image/jpeg", 0.55);
+        }
+
+        resolve(compressedDataUrl);
+      } catch (err) {
+        console.warn("Canvas compression failed, falling back to original:", err);
+        resolve(null);
+      }
+    };
+
+    img.onerror = () => resolve(null);
+    reader.onerror = () => resolve(null);
+    reader.readAsDataURL(file);
+  });
+};
+
 // --- Storage Upload ---
 export const uploadFileToStorage = async (file, path, onProgress) => {
   // Determine content type safely
@@ -54,17 +113,47 @@ export const uploadFileToStorage = async (file, path, onProgress) => {
 
     return await Promise.race([uploadPromise, timeoutPromise]);
   } catch (storageErr) {
-    console.warn("Firebase Storage unavailable, falling back to direct Data URL:", storageErr);
+    console.warn("Firebase Storage unavailable, falling back to direct compressed storage:", storageErr);
 
-    // Attempt 2: Instant Base64 Fallback (supports PDFs, resumes, and images up to 1.5MB)
-    if (file.size <= 1.5 * 1024 * 1024) {
+    const isImage =
+      (file.type && file.type.startsWith("image/")) ||
+      /\.(jpe?g|png|webp|gif|bmp|avif)$/i.test(file.name || "");
+
+    // Attempt 2: If image, auto-compress client-side (works for files of any size)
+    if (isImage) {
+      if (onProgress) onProgress(60);
+      let maxW = 1280;
+      let maxH = 720;
+      let q = 0.68;
+      if (path.includes("screenshot")) {
+        maxW = 960;
+        maxH = 540;
+        q = 0.62;
+      } else if (path.includes("gallery")) {
+        maxW = 800;
+        maxH = 600;
+        q = 0.65;
+      } else if (path.includes("profile")) {
+        maxW = 500;
+        maxH = 500;
+        q = 0.75;
+      }
+      const compressed = await compressImage(file, maxW, maxH, q);
+      if (compressed) {
+        if (onProgress) onProgress(100);
+        return compressed;
+      }
+    }
+
+    // Attempt 3: For PDFs or documents up to 2MB
+    if (file.size <= 2 * 1024 * 1024) {
       if (onProgress) onProgress(70);
       const dataUrl = await fileToDataUrl(file);
       if (onProgress) onProgress(100);
       return dataUrl;
     } else {
       throw new Error(
-        `File size (${(file.size / (1024 * 1024)).toFixed(1)}MB) exceeds direct storage limit (1.5MB). Please compress the file or enable Cloud Storage in Firebase Console.`
+        `PDF File size (${(file.size / (1024 * 1024)).toFixed(1)}MB) exceeds 2MB limit. Please upload a PDF under 2MB.`
       );
     }
   }
@@ -74,6 +163,19 @@ export const uploadFileToStorage = async (file, path, onProgress) => {
 export const updateGeneralSettings = async (settingsData) => {
   const docRef = doc(db, "settings", "general");
   await setDoc(docRef, { ...settingsData, updatedAt: serverTimestamp() }, { merge: true });
+};
+
+export const updateMediaSettings = async ({ backgrounds, gallery }) => {
+  const promises = [];
+  if (backgrounds) {
+    const bgRef = doc(db, "settings", "backgrounds");
+    promises.push(setDoc(bgRef, { ...backgrounds, updatedAt: serverTimestamp() }, { merge: true }));
+  }
+  if (gallery) {
+    const galRef = doc(db, "settings", "gallery");
+    promises.push(setDoc(galRef, { ...gallery, updatedAt: serverTimestamp() }, { merge: true }));
+  }
+  await Promise.all(promises);
 };
 
 // --- Projects ---

@@ -1,13 +1,11 @@
 import React from "react";
 import { usePortfolio } from "../../context/PortfolioContext";
-import { formatBgUrl } from "../../constants/fallbackData";
+import { formatBgStyle } from "../../constants/fallbackData";
 
 export const SkillsSection = () => {
   const { skills, settings } = usePortfolio();
 
-  const skillsStyle = settings.bgSkills
-    ? { backgroundImage: `url('${formatBgUrl(settings.bgSkills)}')` }
-    : undefined;
+  const skillsStyle = formatBgStyle(settings.bgSkills);
 
   const formatIconClass = (icon) => {
     if (!icon) return "fas fa-code";

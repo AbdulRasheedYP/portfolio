@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import confetti from "canvas-confetti";
 import { usePortfolio } from "../../context/PortfolioContext";
 import { saveMessageDoc } from "../../firebase/services";
-import { formatBgUrl } from "../../constants/fallbackData";
+import { formatBgStyle } from "../../constants/fallbackData";
 
 export const ContactSection = () => {
   const { settings } = usePortfolio();
@@ -14,9 +14,7 @@ export const ContactSection = () => {
   const [showModal, setShowModal] = useState(false);
   const [lastSubmitTime, setLastSubmitTime] = useState(0);
 
-  const contactStyle = settings.bgContact
-    ? { backgroundImage: `url('${formatBgUrl(settings.bgContact)}')` }
-    : undefined;
+  const contactStyle = formatBgStyle(settings.bgContact);
 
   const validate = () => {
     // If bot filled the honeypot field, fail silently

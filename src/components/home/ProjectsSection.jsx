@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { usePortfolio } from "../../context/PortfolioContext";
-import { formatBgUrl } from "../../constants/fallbackData";
+import { formatBgStyle } from "../../constants/fallbackData";
 
 export const ProjectsSection = () => {
   const { projects, settings } = usePortfolio();
@@ -9,9 +9,7 @@ export const ProjectsSection = () => {
   const navigate = useNavigate();
   const gridRef = useRef(null);
 
-  const projectsStyle = settings.bgProjects
-    ? { backgroundImage: `url('${formatBgUrl(settings.bgProjects)}')` }
-    : undefined;
+  const projectsStyle = formatBgStyle(settings.bgProjects);
 
   const filteredProjects = projects.filter((p) => {
     if (filter === "all") return true;

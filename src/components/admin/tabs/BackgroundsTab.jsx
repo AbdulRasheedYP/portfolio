@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Save, Loader2, Image as ImageIcon } from "lucide-react";
 import { usePortfolio } from "../../../context/PortfolioContext";
 import { useToast } from "../../../context/ToastContext";
-import { updateGeneralSettings } from "../../../firebase/services";
+import { updateMediaSettings } from "../../../firebase/services";
 import { ImageUploader } from "../ImageUploader";
 
 export const BackgroundsTab = () => {
@@ -50,7 +50,26 @@ export const BackgroundsTab = () => {
     e.preventDefault();
     setSaving(true);
     try {
-      await updateGeneralSettings(formData);
+      const backgrounds = {
+        bgHero: formData.bgHero || "",
+        bgAbout: formData.bgAbout || "",
+        bgSkills: formData.bgSkills || "",
+        bgServices: formData.bgServices || "",
+        bgProjects: formData.bgProjects || "",
+        bgContact: formData.bgContact || ""
+      };
+
+      const gallery = {
+        bgGal1: formData.bgGal1 || "",
+        bgGal2: formData.bgGal2 || "",
+        bgGal3: formData.bgGal3 || "",
+        bgGal4: formData.bgGal4 || "",
+        bgGal5: formData.bgGal5 || "",
+        bgGal6: formData.bgGal6 || "",
+        bgGal7: formData.bgGal7 || ""
+      };
+
+      await updateMediaSettings({ backgrounds, gallery });
       toast.success("Backgrounds & Gallery images updated successfully!");
     } catch (err) {
       console.error(err);

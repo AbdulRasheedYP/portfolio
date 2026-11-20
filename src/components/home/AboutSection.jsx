@@ -1,13 +1,11 @@
 import React from "react";
 import { usePortfolio } from "../../context/PortfolioContext";
-import { formatBgUrl } from "../../constants/fallbackData";
+import { formatBgStyle } from "../../constants/fallbackData";
 
 export const AboutSection = () => {
   const { settings } = usePortfolio();
 
-  const aboutStyle = settings.bgAbout
-    ? { backgroundImage: `url('${formatBgUrl(settings.bgAbout)}')` }
-    : undefined;
+  const aboutStyle = formatBgStyle(settings.bgAbout);
 
   return (
     <section id="about" className="section about" style={aboutStyle}>

@@ -79,6 +79,25 @@ export const AboutTab = () => {
           accept="application/pdf,image/*,.pdf"
         />
 
+        {/* Quick Presets for local CV */}
+        <div className="flex flex-wrap items-center gap-2 -mt-2">
+          <span className="text-[11px] text-slate-400">Quick link local CV:</span>
+          <button
+            type="button"
+            onClick={() => setFormData({ ...formData, resumeUrl: "/img/AbdulrasheedCV.pdf" })}
+            className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-primary border border-white/10 text-xs transition-colors"
+          >
+            Default CV
+          </button>
+          <button
+            type="button"
+            onClick={() => setFormData({ ...formData, resumeUrl: "/img/AbdulRasheedCV_new.pdf" })}
+            className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-primary border border-white/10 text-xs transition-colors"
+          >
+            New CV
+          </button>
+        </div>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {/* Location */}
           <div>

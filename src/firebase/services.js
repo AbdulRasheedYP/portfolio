@@ -27,11 +27,26 @@ export const uploadFileToStorage = async (file, path, onProgress) => {
   const storageRef = ref(storage, path);
 
   if (onProgress) onProgress(20);
-  const snapshot = await uploadBytes(storageRef, file, metadata);
-  if (onProgress) onProgress(80);
-  const downloadUrl = await getDownloadURL(snapshot.ref);
-  if (onProgress) onProgress(100);
-  return downloadUrl;
+
+  const uploadPromise = (async () => {
+    const snapshot = await uploadBytes(storageRef, file, metadata);
+    if (onProgress) onProgress(80);
+    const downloadUrl = await getDownloadURL(snapshot.ref);
+    if (onProgress) onProgress(100);
+    return downloadUrl;
+  })();
+
+  const timeoutPromise = new Promise((_, reject) => {
+    setTimeout(() => {
+      reject(
+        new Error(
+          "Upload timed out (12s). Firebase Storage is not responding. Please make sure Cloud Storage is activated in Firebase Console (Storage -> 'Get started') and rules are published."
+        )
+      );
+    }, 12000);
+  });
+
+  return Promise.race([uploadPromise, timeoutPromise]);
 };
 
 // --- Settings ---

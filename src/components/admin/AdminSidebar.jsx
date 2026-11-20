@@ -11,7 +11,8 @@ import {
   Shield,
   ExternalLink,
   LogOut,
-  X
+  X,
+  Milestone
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { usePortfolio } from "../../context/PortfolioContext";
@@ -23,6 +24,7 @@ export const AdminSidebar = ({ activeTab, onSelectTab, isMobileOpen, onCloseMobi
   const menuItems = [
     { id: "home", label: "Home", icon: Home },
     { id: "about", label: "About", icon: User },
+    { id: "journey", label: "My Journey", icon: Milestone },
     { id: "skills", label: "Skills", icon: Star },
     { id: "services", label: "Services", icon: Briefcase },
     { id: "projects", label: "Projects", icon: FolderOpen, badge: projects.length },

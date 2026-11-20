@@ -6,6 +6,7 @@ import { AboutTab } from "../../components/admin/tabs/AboutTab";
 import { SkillsTab } from "../../components/admin/tabs/SkillsTab";
 import { ServicesTab } from "../../components/admin/tabs/ServicesTab";
 import { ProjectsTab } from "../../components/admin/tabs/ProjectsTab";
+import { JourneyTab } from "../../components/admin/tabs/JourneyTab";
 import { BackgroundsTab } from "../../components/admin/tabs/BackgroundsTab";
 import { MessagesTab } from "../../components/admin/tabs/MessagesTab";
 
@@ -19,6 +20,8 @@ export const DashboardPage = () => {
         return <HomeTab />;
       case "about":
         return <AboutTab />;
+      case "journey":
+        return <JourneyTab />;
       case "skills":
         return <SkillsTab />;
       case "services":
@@ -37,6 +40,7 @@ export const DashboardPage = () => {
   const tabTitles = {
     home: "Hero & Header Settings",
     about: "About & Personal Info",
+    journey: "My Journey & Learning Milestones",
     skills: "Technical Skills",
     services: "Services & Capabilities",
     projects: "Projects Management",

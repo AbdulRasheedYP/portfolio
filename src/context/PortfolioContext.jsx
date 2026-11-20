@@ -173,6 +173,27 @@ export const PortfolioProvider = ({ children }) => {
         (err) => console.warn("Firestore socials notice:", err.message)
       );
       unsubscribes.push(unsubSocials);
+
+      // 6. Journey milestones listener
+      const unsubJourney = onSnapshot(
+        collection(db, "journey"),
+        (snapshot) => {
+          if (!snapshot.empty) {
+            const list = [];
+            snapshot.forEach((docSnap) => {
+              list.push({ id: docSnap.id, ...docSnap.data() });
+            });
+            list.sort((a, b) => (Number(a.order) || 999) - (Number(b.order) || 999));
+            setJourney(list);
+            setCachedData("journey", list);
+          } else {
+            setJourney(FALLBACK_JOURNEY);
+            setCachedData("journey", FALLBACK_JOURNEY);
+          }
+        },
+        (err) => console.warn("Firestore journey notice:", err.message)
+      );
+      unsubscribes.push(unsubJourney);
     } catch (e) {
       console.warn("Firebase live sync initialization error:", e);
     }

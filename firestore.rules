@@ -26,6 +26,10 @@ service cloud.firestore {
       allow read: if true;
       allow write: if isAdmin();
     }
+    match /journey/{journeyId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
 
     // 2. Contact Messages: Public can ONLY create with validated fields and limits; reading and deleting is strictly restricted to authenticated admin
     match /messages/{messageId} {

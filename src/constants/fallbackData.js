@@ -142,40 +142,73 @@ export const FALLBACK_SOCIALS = [
 
 export const FALLBACK_JOURNEY = [
   {
-    id: "j-brototype",
-    period: "2025 – Present",
-    role: "Python Full-Stack Developer Trainee",
-    organization: "Brototype",
-    badge: "Intensive Tech Immersion",
-    current: true,
-    icon: "fas fa-laptop-code",
-    color: "#00d9ff",
+    id: "j-bcom",
+    period: "2022 — 2025",
+    title: "Bachelor of Commerce (B.Com)",
+    subtitle: "Calicut University • Analytical & Business Operations",
+    badge: "Academic Foundation",
+    type: "academic",
+    current: false,
+    order: 1,
+    icon: "GraduationCap",
     description:
-      "Undergoing rigorous project-driven software development training focusing on production-grade Python architectures, real-world database design, and end-to-end web deployment.",
-    highlights: [
-      "Built production-ready e-commerce systems featuring automated wallet refunds, promotional offer coupon engines, cart & wishlist logic, and custom administration panels.",
-      "Hands-on expertise with Django framework, PostgreSQL relational schema modeling, and RESTful API architecture.",
-      "Practical cloud deployment on AWS EC2 with Nginx reverse proxy and Gunicorn.",
-      "Daily problem-solving, code reviews, and Git collaboration adhering to industry-level standards."
-    ],
-    skills: ["Python", "Django", "PostgreSQL", "REST APIs", "AWS EC2", "Nginx", "Git"]
+      "Developed strong quantitative reasoning, structured analytical thinking, and an in-depth understanding of commercial workflows and business logic.",
+    skills: ["Business Workflows", "Data Logic", "Systematic Analysis"]
   },
   {
-    id: "j-bcom",
-    period: "2022 – 2025",
-    role: "Bachelor of Commerce (B.Com)",
-    organization: "Undergraduate Degree",
-    badge: "Foundation in Analytics",
+    id: "j-brototype-m1",
+    period: "Month 1",
+    title: "Python Core & Algorithmic Problem Solving",
+    subtitle: "Brototype • Algorithmic Foundation",
+    badge: "Core Fundamentals",
+    type: "tech",
     current: false,
-    icon: "fas fa-graduation-cap",
-    color: "#a855f7",
+    order: 2,
+    icon: "Code2",
     description:
-      "Graduated with a solid foundation in commercial operations, financial data analysis, and business management. This background provides a distinct advantage in architecting robust business logic and real-world application workflows.",
-    highlights: [
-      "Developed sharp analytical thinking and structured quantitative problem-solving abilities.",
-      "Gained deep insight into business processes, financial transactions, and workflow optimization.",
-      "Disciplined approach to deadlines, documentation, and continuous self-improvement."
-    ],
-    skills: ["Business Logic", "Analytical Reasoning", "Financial Data", "Workflow Design"]
+      "Mastered Python syntax, functional programming, Object-Oriented Programming (OOP), Data Structures & Algorithms, and problem-solving through daily algorithmic challenges.",
+    skills: ["Python 3", "OOP", "Data Structures", "Algorithms", "Git & GitHub"]
+  },
+  {
+    id: "j-brototype-m2",
+    period: "Month 2",
+    title: "Database Engineering & Web Essentials",
+    subtitle: "Brototype • Data Modeling & Modern Web",
+    badge: "Data & Web Basics",
+    type: "tech",
+    current: false,
+    order: 3,
+    icon: "Database",
+    description:
+      "Designed and normalized relational databases with PostgreSQL, writing complex SQL queries and indexes alongside modern responsive frontends with HTML5, CSS3, and JavaScript.",
+    skills: ["PostgreSQL", "SQL Relational Schemas", "Query Optimization", "JavaScript", "HTML5 & CSS3"]
+  },
+  {
+    id: "j-brototype-m3",
+    period: "Month 3",
+    title: "Django Framework & RESTful APIs",
+    subtitle: "Brototype • Backend Web Engineering",
+    badge: "Framework & APIs",
+    type: "tech",
+    current: false,
+    order: 4,
+    icon: "Server",
+    description:
+      "Architected backend web applications using Django MVT pattern, Django REST Framework (DRF), JWT token authentication, secure session handling, and ORM query optimization.",
+    skills: ["Django", "Django REST Framework", "JWT Auth", "API Design", "ORM Query Tuning"]
+  },
+  {
+    id: "j-brototype-m4",
+    period: "Month 4 — Present",
+    title: "Production Systems, DevOps & Deployment",
+    subtitle: "Brototype • Full-Stack Production & Cloud",
+    badge: "Active Trainee",
+    type: "tech",
+    current: true,
+    order: 5,
+    icon: "Cloud",
+    description:
+      "Developing production-grade full-stack systems with complex business logic (wallet transactions, checkout flows, custom admin portals) and deploying to AWS EC2 with Nginx & Linux.",
+    skills: ["Full-Stack Systems", "AWS EC2", "Nginx", "Linux CLI", "Gunicorn"]
   }
 ];

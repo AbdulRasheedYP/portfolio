@@ -288,3 +288,37 @@ export const deleteSocialDoc = async (id) => {
   await deleteDoc(doc(db, "socials", id));
 };
 
+// --- Journey / Learning Roadmap Milestones ---
+export const addJourneyDoc = async (journeyData) => {
+  return await addDoc(collection(db, "journey"), {
+    ...journeyData,
+    createdAt: serverTimestamp()
+  });
+};
+
+export const updateJourneyDoc = async (id, journeyData) => {
+  const docRef = doc(db, "journey", id);
+  await updateDoc(docRef, {
+    ...journeyData,
+    updatedAt: serverTimestamp()
+  });
+};
+
+export const updateJourneyOrder = async (orderedMilestones) => {
+  const batch = writeBatch(db);
+  orderedMilestones.forEach((item, index) => {
+    if (item.id) {
+      const docRef = doc(db, "journey", item.id);
+      batch.update(docRef, {
+        order: index + 1,
+        updatedAt: serverTimestamp()
+      });
+    }
+  });
+  await batch.commit();
+};
+
+export const deleteJourneyDoc = async (id) => {
+  await deleteDoc(doc(db, "journey", id));
+};
+

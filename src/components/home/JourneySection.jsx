@@ -1,11 +1,39 @@
 import React from "react";
-import { GraduationCap, Code2, ArrowDown } from "lucide-react";
+import {
+  GraduationCap,
+  Code2,
+  Database,
+  Server,
+  Cloud,
+  Terminal,
+  ArrowDown
+} from "lucide-react";
 import { usePortfolio } from "../../context/PortfolioContext";
-import { formatBgStyle } from "../../constants/fallbackData";
+import { formatBgStyle, FALLBACK_JOURNEY } from "../../constants/fallbackData";
 
 export const JourneySection = () => {
-  const { settings = {} } = usePortfolio();
+  const { settings = {}, journey = [] } = usePortfolio();
   const journeyStyle = formatBgStyle(settings.bgJourney);
+
+  const displayList = Array.isArray(journey) && journey.length > 0 ? journey : FALLBACK_JOURNEY;
+
+  const renderIcon = (iconName, isCurrent) => {
+    switch (iconName) {
+      case "GraduationCap":
+        return <GraduationCap className="timeline-icon" />;
+      case "Database":
+        return <Database className={`timeline-icon ${isCurrent ? "text-primary" : ""}`} />;
+      case "Server":
+        return <Server className={`timeline-icon ${isCurrent ? "text-primary" : ""}`} />;
+      case "Cloud":
+        return <Cloud className={`timeline-icon ${isCurrent ? "text-primary" : ""}`} />;
+      case "Terminal":
+        return <Terminal className={`timeline-icon ${isCurrent ? "text-primary" : ""}`} />;
+      case "Code2":
+      default:
+        return <Code2 className={`timeline-icon ${isCurrent ? "text-primary" : ""}`} />;
+    }
+  };
 
   return (
     <section id="journey" className="section journey" style={journeyStyle}>
@@ -22,84 +50,87 @@ export const JourneySection = () => {
           {/* Vertical Center Spine */}
           <div className="timeline-spine" aria-hidden="true"></div>
 
-          {/* Milestone 1: 2022 - 2025 B.Com */}
-          <div className="timeline-item timeline-item-left">
-            {/* Center Node */}
-            <div className="timeline-node" title="Academic Degree">
-              <GraduationCap className="timeline-icon" />
-            </div>
+          {displayList.map((item, index) => {
+            const isLeft = index % 2 === 0;
+            const isCurrent = Boolean(item.current);
+            const isPivotPoint = index === 1 && displayList[0]?.type === "academic";
 
-            {/* Content Card */}
-            <div className="timeline-content glass-panel">
-              <div className="timeline-header">
-                <span className="timeline-date-badge">2022 — 2025</span>
-                <span className="timeline-step-label">Academic Foundation</span>
-              </div>
+            return (
+              <React.Fragment key={item.id || `journey-${index}`}>
+                {/* Career Pivot Marker between B.Com and Tech Sprints */}
+                {isPivotPoint && (
+                  <div className="timeline-pivot">
+                    <div className="timeline-pivot-pill">
+                      <ArrowDown className="w-3.5 h-3.5 text-primary animate-bounce" />
+                      <span>Career Pivot to Software Engineering</span>
+                    </div>
+                  </div>
+                )}
 
-              <h3 className="timeline-title">Bachelor of Commerce (B.Com)</h3>
-              <p className="timeline-institution">Calicut University • Analytical & Business Operations</p>
+                <div
+                  className={`timeline-item ${
+                    isLeft ? "timeline-item-left" : "timeline-item-right"
+                  } ${isCurrent ? "timeline-item-active" : ""}`}
+                >
+                  {/* Center Node on the spine */}
+                  <div
+                    className={`timeline-node ${isCurrent ? "timeline-node-active" : ""}`}
+                    title={item.title}
+                  >
+                    {renderIcon(item.icon, isCurrent)}
+                    {isCurrent && <span className="timeline-pulse-ring" aria-hidden="true"></span>}
+                  </div>
 
-              <p className="timeline-desc">
-                Developed strong quantitative reasoning, structured analytical thinking, and an in-depth understanding of commercial workflows and business logic.
-              </p>
+                  {/* Timeline Card */}
+                  <div className="timeline-content glass-panel">
+                    <div className="timeline-header">
+                      <span
+                        className={`timeline-date-badge ${
+                          isCurrent ? "date-badge-active" : ""
+                        }`}
+                      >
+                        {item.period}
+                      </span>
+                      {isCurrent ? (
+                        <span className="timeline-active-tag">
+                          <span className="live-dot"></span>
+                          Active Trainee
+                        </span>
+                      ) : (
+                        item.badge && (
+                          <span className="timeline-step-label">{item.badge}</span>
+                        )
+                      )}
+                    </div>
 
-              <div className="timeline-tags">
-                <span className="timeline-tag">Business Workflows</span>
-                <span className="timeline-tag">Data Logic</span>
-                <span className="timeline-tag">Systematic Analysis</span>
-              </div>
-            </div>
-          </div>
+                    <h3 className="timeline-title">{item.title}</h3>
+                    {item.subtitle && (
+                      <p className="timeline-institution">{item.subtitle}</p>
+                    )}
 
-          {/* Pivot Connector on Spine */}
-          <div className="timeline-pivot">
-            <div className="timeline-pivot-pill">
-              <ArrowDown className="w-3.5 h-3.5 text-primary animate-bounce" />
-              <span>Career Pivot to Code</span>
-            </div>
-          </div>
+                    {item.description && (
+                      <p className="timeline-desc">{item.description}</p>
+                    )}
 
-          {/* Milestone 2: 2025 - Present Brototype */}
-          <div className="timeline-item timeline-item-right timeline-item-active">
-            {/* Center Node Active */}
-            <div className="timeline-node timeline-node-active" title="Tech Immersion">
-              <Code2 className="timeline-icon text-primary" />
-              <span className="timeline-pulse-ring" aria-hidden="true"></span>
-            </div>
-
-            {/* Content Card */}
-            <div className="timeline-content glass-panel">
-              <div className="timeline-header">
-                <span className="timeline-date-badge date-badge-active">2025 — Present</span>
-                <span className="timeline-active-tag">
-                  <span className="live-dot"></span>
-                  Active Trainee
-                </span>
-              </div>
-
-              <h3 className="timeline-title">Python Full-Stack Developer Trainee</h3>
-              <p className="timeline-institution">Brototype • 100% Project-Driven Tech Immersion</p>
-
-              <p className="timeline-desc">
-                Intensive hands-on engineering: architecting scalable backend architectures, database schemas, REST APIs, and modern responsive frontends.
-              </p>
-
-              <div className="timeline-tags">
-                <span className="timeline-tag tag-cyan">Python & Django</span>
-                <span className="timeline-tag tag-cyan">PostgreSQL</span>
-                <span className="timeline-tag tag-cyan">REST APIs</span>
-                <span className="timeline-tag tag-cyan">AWS EC2 & Linux</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Minimal Value Proposition Callout */}
-        <div className="journey-insight-box">
-          <i className="fas fa-quote-left insight-quote-icon"></i>
-          <p className="journey-insight-text">
-            <strong>The Advantage:</strong> Commerce taught me how businesses operate and scale; software engineering gave me the tools to build systems that automate and power them.
-          </p>
+                    {Array.isArray(item.skills) && item.skills.length > 0 && (
+                      <div className="timeline-tags">
+                        {item.skills.map((skill, sIdx) => (
+                          <span
+                            key={sIdx}
+                            className={`timeline-tag ${
+                              isCurrent || item.type === "tech" ? "tag-cyan" : ""
+                            }`}
+                          >
+                            {skill}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </React.Fragment>
+            );
+          })}
         </div>
       </div>
     </section>

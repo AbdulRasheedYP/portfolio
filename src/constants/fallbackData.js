@@ -63,60 +63,24 @@ export const FALLBACK_SERVICES = [
 
 export const FALLBACK_PROJECTS = [
   {
-    id: "ecommerce-platform",
-    title: "Full-Stack E-Commerce Platform",
-    category: "web",
-    description: "A complete e-commerce solution with user auth, shopping cart, product filtering, order management, and checkout workflow.",
-    longDescription: "A comprehensive e-commerce platform built to solve real-world online shopping demands. It features robust role-based access control, relational database modeling in PostgreSQL, order lifecycle states, and product inventory tracking.",
-    image: "https://images.unsplash.com/photo-1557821552-17105176677c?w=800&auto=format&fit=crop&q=80",
-    techStack: ["Python", "Django", "PostgreSQL", "JavaScript", "HTML/CSS"],
-    githubUrl: "https://github.com/Rashi0099",
-    liveUrl: "",
-    features: [
-      "User authentication, profile management, and password reset",
-      "Dynamic product catalog with category and price filters",
-      "Shopping cart session management and seamless checkout",
-      "Order tracking history and status updates",
-      "Admin dashboard for inventory management"
-    ],
-    challenges: "Handling concurrent stock deductions during checkout and ensuring atomic database transactions."
-  },
-  {
-    id: "task-workflow-manager",
-    title: "Task & Workflow Management App",
+    id: "ZoeZX4xucPEgPrWAnRQl",
+    title: "E-Commerce Platform",
     category: "python",
-    description: "Collaborative project and task tracking dashboard with status columns, priorities, and deadline notifications.",
-    longDescription: "Designed for development teams to organize sprints, assign tasks, and track project milestones with clean status updates and reporting.",
-    image: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=800&auto=format&fit=crop&q=80",
-    techStack: ["Python", "Django REST", "SQLite", "JavaScript", "Bootstrap"],
-    githubUrl: "https://github.com/Rashi0099",
-    liveUrl: "",
+    description: "Full-featured footwear e-commerce platform with offer coupons, wishlist, cart, order tracking, custom admin dashboard, and automated wallet refund system.",
+    longDescription: "Shoedrop is a robust full-stack e-commerce application built using Django and PostgreSQL. It features a complete online shopping experience including product catalog filtering, cart & wishlist management, promotional offer coupon engines, and user wallet integration with automated refunds. On the management side, it includes a custom administrative dashboard for tracking orders, managing product stock, handling discount coupons, and controlling user accounts",
+    image: "https://firebasestorage.googleapis.com/v0/b/portfolio-79a11.firebasestorage.app/o/projects%2F1787486603957_Screenshot%202026-01-23%20234547.png?alt=media&token=48f654f1-fbf2-416b-ad13-adfa79bb173f",
+    techStack: ["Python", "Django", "PostgreSQL", "Tailwind CSS", "JavaScript", "AWS EC2", "Nginx"],
+    githubUrl: "https://github.com/Rashi0099/Shoedrop_E-Commerce_Platform.git",
+    liveUrl: "https://github.com/Rashi0099/Shoedrop_E-Commerce_Platform.git",
     features: [
-      "Drag-and-drop workflow status updating",
-      "Priority badges and deadline countdown tracking",
-      "User role authorization and team collaboration boards",
-      "Clean REST API endpoints for seamless frontend syncing"
-    ],
-    challenges: "Designing an efficient relational schema connecting users, projects, and task dependencies without N+1 query overhead."
-  },
-  {
-    id: "developer-portfolio-cms",
-    title: "Modern Portfolio & Real-Time CMS",
-    category: "frontend",
-    description: "Interactive portfolio and custom admin CMS with dark glassmorphic styling, live Firebase syncing, and case studies.",
-    longDescription: "A high-performance personal developer portfolio and content management dashboard built with React and Vite. Allows the owner to modify projects, skills, services, and read messages in real time.",
-    image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&auto=format&fit=crop&q=80",
-    techStack: ["React", "Vite", "Tailwind CSS", "Firebase", "Lucide Icons"],
-    githubUrl: "https://github.com/Rashi0099/portfolio",
-    liveUrl: "",
-    features: [
-      "Instant page render with zero-delay fallback caching",
-      "Protected admin dashboard with Firebase authentication",
-      "Real-time Firestore listeners for instant content updates",
-      "Direct image uploads to Firebase Storage with progress indicators",
-      "Responsive glassmorphism design with mobile navigation"
-    ],
-    challenges: "Building a fluid SPA that loads immediately while syncing seamlessly with cloud data."
+      "Custom Admin Dashboard for Inventory & Sales Control",
+      "Promotional Offer Coupons & Discount Engine",
+      "Shopping Cart & Interactive Wishlist Management",
+      "Order Tracking & Cancel/Return Management",
+      "User Wallet & Automated Refund System",
+      "Product Filtering, Search & Stock Management",
+      "RESTful API Endpoints with Django REST Framework"
+    ]
   }
 ];
 

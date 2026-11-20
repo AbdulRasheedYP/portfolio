@@ -1,20 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import {
-  ArrowLeft,
-  Github,
-  ExternalLink,
-  Code2,
-  CheckCircle2,
-  AlertTriangle,
-  Layers,
-  Sparkles
-} from "lucide-react";
 import { usePortfolio } from "../context/PortfolioContext";
 import { getProjectById } from "../firebase/services";
-import { Navbar } from "../components/common/Navbar";
-import { Footer } from "../components/common/Footer";
-import { SkeletonDetail } from "../components/common/SkeletonLoader";
 
 export const ProjectDetailsPage = () => {
   const { id } = useParams();
@@ -22,12 +9,15 @@ export const ProjectDetailsPage = () => {
 
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [imgOpacity, setImgOpacity] = useState(1);
 
   useEffect(() => {
     window.scrollTo(0, 0);
 
     const loadProject = async () => {
-      // 1. Try finding in loaded portfolio context first (instant!)
+      // 1. Try finding in loaded portfolio context first (instant)
       const foundInContext = projects.find((p) => p.id === id);
       if (foundInContext) {
         setProject(foundInContext);
@@ -40,9 +30,12 @@ export const ProjectDetailsPage = () => {
         const docData = await getProjectById(id);
         if (docData) {
           setProject(docData);
+        } else {
+          setError(true);
         }
       } catch (err) {
         console.warn("Direct project lookup:", err);
+        setError(true);
       } finally {
         setLoading(false);
       }
@@ -51,214 +44,343 @@ export const ProjectDetailsPage = () => {
     loadProject();
   }, [id, projects]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-dark-bg text-slate-200">
-        <Navbar />
-        <div className="pt-28 pb-16">
-          <SkeletonDetail />
-        </div>
-        <Footer />
-      </div>
-    );
+  // Build Gallery Items Array (matching legacy parseImgItem logic)
+  const galleryItems = [];
+  if (project) {
+    if (project.image) {
+      galleryItems.push({
+        url: project.image,
+        title: `${project.title || "Project"} — Overview`,
+        desc: project.description || project.longDescription || "Main Cover Image"
+      });
+    }
+
+    if (project.images && Array.isArray(project.images)) {
+      project.images.forEach((imgItem, idx) => {
+        if (!imgItem) return;
+        if (typeof imgItem === "object" && imgItem.url) {
+          if (!galleryItems.some((g) => g.url === imgItem.url)) {
+            galleryItems.push({
+              url: imgItem.url,
+              title: imgItem.title || `${project.title || "Project"} — Screenshot ${idx + 1}`,
+              desc: imgItem.desc || ""
+            });
+          }
+        } else if (typeof imgItem === "string") {
+          const parts = imgItem.split("|");
+          const url = parts[0]?.trim();
+          const title = parts[1] ? parts[1].trim() : `${project.title || "Project"} — Screenshot ${idx + 1}`;
+          const desc = parts[2] ? parts[2].trim() : "";
+          if (url && !galleryItems.some((g) => g.url === url)) {
+            galleryItems.push({ url, title, desc });
+          }
+        }
+      });
+    }
+
+    if (galleryItems.length === 0) {
+      galleryItems.push({
+        url: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=1000&auto=format&fit=crop&q=80",
+        title: "Main Application Interface",
+        desc: "Interactive preview highlighting user workflow and component design."
+      });
+    }
   }
 
-  if (!project) {
-    return (
-      <div className="min-h-screen bg-dark-bg text-slate-200 flex flex-col justify-between">
-        <Navbar />
-        <div className="max-w-xl mx-auto px-4 py-32 text-center">
-          <h2 className="text-2xl font-bold text-white mb-3">Project Not Found</h2>
-          <p className="text-slate-400 text-sm mb-6">
-            The project you are looking for may have been removed or the link is incorrect.
-          </p>
-          <Link
-            to="/#projects"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-black bg-primary hover:bg-primary-hover transition-colors text-sm"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span>Back to Projects</span>
-          </Link>
-        </div>
-        <Footer />
-      </div>
+  const handleThumbClick = (idx) => {
+    if (idx === currentIndex) return;
+    setImgOpacity(0.4);
+    setTimeout(() => {
+      setCurrentIndex(idx);
+      setImgOpacity(1);
+    }, 80);
+  };
+
+  const activeItem = galleryItems[currentIndex] || galleryItems[0];
+
+  const techList = project
+    ? Array.isArray(project.techStack)
+      ? project.techStack
+      : (project.techStack || "").split(",").map((t) => t.trim()).filter(Boolean)
+    : [];
+
+  const featuresList = project
+    ? Array.isArray(project.features)
+      ? project.features
+      : (project.features || "").split("\n").map((f) => f.trim().replace(/^[-*•]\s*/, "")).filter(Boolean)
+    : [];
+
+  const formatScreenDesc = (text) => {
+    if (!text || !text.trim()) return null;
+    const lines = text.split("\n").map((l) => l.trim()).filter(Boolean);
+    const hasListFormat = lines.some((l) =>
+      /^(\(\d+\)|\d+[\.\)]|[-•*])\s+/.test(l) || l.includes(" — ") || l.includes(" - ") || l.includes(": ")
     );
-  }
 
-  const techList = Array.isArray(project.techStack)
-    ? project.techStack
-    : (project.techStack || "").split(",").map((t) => t.trim()).filter(Boolean);
+    if (hasListFormat) {
+      return (
+        <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginTop: "8px", width: "100%" }}>
+          {lines.map((line, idx) => {
+            const match = line.match(/^(\(\d+\)|\d+[\.\)]|[-•*])?\s*(.*)$/);
+            const prefix = match && match[1] ? match[1] : "";
+            const rest = match && match[2] ? match[2] : line;
 
-  const featuresList = Array.isArray(project.features)
-    ? project.features
-    : (project.features || "").split("\n").map((f) => f.trim().replace(/^[-*•]\s*/, "")).filter(Boolean);
+            let itemTitle = rest;
+            let itemDesc = "";
+            if (rest.includes(" — ")) {
+              const parts = rest.split(" — ");
+              itemTitle = parts[0];
+              itemDesc = parts.slice(1).join(" — ");
+            } else if (rest.includes(" - ")) {
+              const parts = rest.split(" - ");
+              itemTitle = parts[0];
+              itemDesc = parts.slice(1).join(" - ");
+            } else if (rest.includes(": ")) {
+              const parts = rest.split(": ");
+              itemTitle = parts[0];
+              itemDesc = parts.slice(1).join(": ");
+            }
+
+            return (
+              <div
+                key={idx}
+                style={{
+                  display: "flex",
+                  alignItems: "flex-start",
+                  gap: "8px",
+                  fontSize: "0.86rem",
+                  lineHeight: "1.6",
+                  background: "rgba(255,255,255,0.02)",
+                  padding: "7px 11px",
+                  borderRadius: "8px",
+                  border: "1px solid rgba(255,255,255,0.04)"
+                }}
+              >
+                {prefix ? (
+                  <span
+                    style={{
+                      color: "#ef4444",
+                      fontWeight: 700,
+                      fontFamily: "monospace",
+                      fontSize: "0.84rem",
+                      flexShrink: 0
+                    }}
+                  >
+                    {prefix}
+                  </span>
+                ) : (
+                  <i
+                    className="fas fa-chevron-right"
+                    style={{ color: "var(--primary)", fontSize: "0.65rem", marginTop: "6px", flexShrink: 0 }}
+                  ></i>
+                )}
+                <div>
+                  <strong style={{ color: "#ffffff", fontWeight: 600 }}>{itemTitle}</strong>
+                  {itemDesc && <span style={{ color: "#94a3b8" }}> — {itemDesc}</span>}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      );
+    }
+
+    return (
+      <p style={{ margin: 0, color: "#cbd5e1", lineHeight: 1.7, whiteSpace: "pre-line" }}>
+        {text}
+      </p>
+    );
+  };
 
   return (
-    <div className="min-h-screen bg-dark-bg text-slate-200">
-      <Navbar />
-
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-24 space-y-12">
-        {/* Back navigation */}
-        <div>
-          <Link
-            to="/#projects"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900 border border-white/10 text-xs font-semibold text-slate-300 hover:text-primary hover:border-primary/30 transition-all hover:-translate-x-1"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Back to Projects</span>
-          </Link>
-        </div>
-
-        {/* Header Title & Category */}
-        <div className="space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md text-xs font-bold uppercase tracking-wider bg-primary/10 text-primary border border-primary/20">
-            <Layers className="w-3.5 h-3.5" />
-            <span>{project.category || "PROJECT"}</span>
-          </div>
-
-          <h1 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight leading-tight">
-            {project.title}
-          </h1>
-
-          <p className="text-slate-300 text-base sm:text-lg leading-relaxed max-w-3xl">
-            {project.longDescription || project.description}
-          </p>
-
-          {/* Action Links */}
-          <div className="flex flex-wrap gap-3 pt-2">
-            {project.liveUrl && (
-              <a
-                href={project.liveUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-black bg-primary hover:bg-primary-hover transition-colors text-sm shadow-md shadow-primary/20"
-              >
-                <span>Live Demo</span>
-                <ExternalLink className="w-4 h-4" />
-              </a>
-            )}
-
-            {project.githubUrl && (
-              <a
-                href={project.githubUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-white bg-slate-900 border border-white/10 hover:border-primary/40 transition-colors text-sm"
-              >
-                <Github className="w-4 h-4 text-primary" />
-                <span>Source Code</span>
-              </a>
-            )}
-          </div>
-        </div>
-
-        {/* Tech Stack Bar */}
-        {techList.length > 0 && (
-          <div className="glass-panel p-5 rounded-2xl space-y-3">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block">
-              Technologies & Architecture
+    <div className="details-page-body">
+      {/* Navigation Header */}
+      <nav className="navbar navbar-details">
+        <div className="container nav-container">
+          <Link to="/" className="nav-logo">
+            <span className="logo-text">
+              Abdul <span className="highlight">Rasheed</span>
             </span>
-            <div className="flex flex-wrap gap-2">
-              {techList.map((tech, idx) => (
-                <span
-                  key={idx}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 border border-white/5 text-slate-200"
-                >
-                  <Code2 className="w-3.5 h-3.5 text-primary" />
-                  <span>{tech}</span>
-                </span>
-              ))}
+          </Link>
+          <div className="nav-actions">
+            <Link
+              to="/#projects"
+              className="btn btn-outline"
+              style={{ borderRadius: "20px", fontSize: "0.82rem", padding: "6px 16px" }}
+            >
+              <i className="fas fa-arrow-left"></i> All Projects
+            </Link>
+            <Link
+              to="/#contact"
+              className="btn btn-filled"
+              style={{ borderRadius: "20px", fontSize: "0.82rem", padding: "6px 16px" }}
+            >
+              Contact Me
+            </Link>
+          </div>
+        </div>
+      </nav>
+
+      {/* Main Details Container */}
+      <main className="details-wrapper">
+        <div className="container">
+          {/* Back Nav Link */}
+          <Link to="/#projects" className="back-nav">
+            <i className="fas fa-arrow-left"></i> Back to Projects
+          </Link>
+
+          {/* Loading Placeholder */}
+          {loading && (
+            <div className="loading-box">
+              <div className="spinner"></div>
+              <p style={{ color: "#64748b", fontSize: "0.9rem" }}>Loading case study...</p>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Main Cover Image */}
-        {project.image && (
-          <div className="rounded-3xl overflow-hidden glass-panel border border-white/10 shadow-2xl">
-            <img
-              src={project.image}
-              alt={project.title}
-              className="w-full max-h-[500px] object-cover bg-slate-900"
-              onError={(e) => {
-                e.target.style.display = "none";
-              }}
-            />
-          </div>
-        )}
+          {/* Error Box */}
+          {!loading && (error || !project) && (
+            <div className="detail-card" style={{ textAlign: "center", padding: "50px 20px" }}>
+              <i className="fas fa-exclamation-triangle" style={{ fontSize: "2.4rem", color: "var(--accent)", marginBottom: "14px" }}></i>
+              <h2>Project Not Found</h2>
+              <p style={{ color: "#64748b", marginBottom: "20px" }}>
+                The requested project details could not be loaded or may have been removed.
+              </p>
+              <Link to="/#projects" className="btn btn-filled">
+                Return to Portfolio
+              </Link>
+            </div>
+          )}
 
-        {/* Key Features */}
-        {featuresList.length > 0 && (
-          <div className="glass-panel p-8 rounded-3xl space-y-5">
-            <h2 className="text-xl font-bold text-white flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-primary" />
-              <span>Key Features & Functional Highlights</span>
-            </h2>
+          {/* Dynamic Case Study View */}
+          {!loading && project && (
+            <div className="fade-in-up">
+              {/* 1. Sleek Compact Header Meta */}
+              <div className="header-meta-box">
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "12px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+                    <span className="project-tag-badge">
+                      <i className="fas fa-layer-group"></i> {(project.category || "PROJECT").toUpperCase()}
+                    </span>
+                    <div style={{ display: "inline-flex", flexWrap: "wrap", gap: "6px", alignItems: "center" }}>
+                      {techList.map((t, idx) => (
+                        <span key={idx} className="tech-pill-minimal">
+                          <i className="fas fa-code-branch" style={{ fontSize: "0.65rem", color: "var(--primary)" }}></i> {t}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
 
-            <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {featuresList.map((feat, idx) => (
-                <li
-                  key={idx}
-                  className="flex items-start gap-3 p-3.5 rounded-xl bg-slate-900/60 border border-white/5"
-                >
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                  <span className="text-sm text-slate-300 leading-relaxed">{feat}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {/* Case Study Screenshots Gallery */}
-        {project.images && project.images.length > 0 && (
-          <div className="glass-panel p-8 rounded-3xl space-y-6">
-            <h2 className="text-xl font-bold text-white flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-primary" />
-              <span>Screenshots & System Walkthrough</span>
-            </h2>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {project.images.map((imgItem, idx) => {
-                const imgUrl = typeof imgItem === "string" ? imgItem : imgItem.url;
-                const imgTitle = typeof imgItem === "object" ? imgItem.title : `Screenshot ${idx + 1}`;
-                const imgDesc = typeof imgItem === "object" ? imgItem.desc : "";
-
-                return (
-                  <div key={idx} className="rounded-2xl overflow-hidden bg-slate-900 border border-white/10 group">
-                    <img
-                      src={imgUrl}
-                      alt={imgTitle || "Project screenshot"}
-                      className="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-300"
-                      onError={(e) => { e.target.style.display = "none"; }}
-                    />
-                    {(imgTitle || imgDesc) && (
-                      <div className="p-4 space-y-1">
-                        {imgTitle && <h4 className="text-sm font-bold text-white">{imgTitle}</h4>}
-                        {imgDesc && <p className="text-xs text-slate-400 leading-relaxed">{imgDesc}</p>}
-                      </div>
+                  <div className="top-action-links">
+                    {project.liveUrl && (
+                      <a
+                        href={project.liveUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn btn-filled"
+                        style={{ padding: "6px 18px", fontSize: "0.8rem", borderRadius: "18px" }}
+                      >
+                        <i className="fas fa-external-link-alt"></i> Live Demo
+                      </a>
+                    )}
+                    {project.githubUrl && (
+                      <a
+                        href={project.githubUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn btn-outline"
+                        style={{ padding: "6px 18px", fontSize: "0.8rem", borderRadius: "18px" }}
+                      >
+                        <i className="fab fa-github"></i> GitHub Code
+                      </a>
                     )}
                   </div>
-                );
-              })}
+                </div>
+
+                <h1 className="project-title-compact">{project.title}</h1>
+                <p className="project-summary-text">
+                  {project.longDescription || project.description}
+                </p>
+              </div>
+
+              {/* 2. 50/50 SPLIT INTERACTIVE SCREENSHOT & EXPLANATION ROW */}
+              <div className="screenshot-interactive-row">
+                {/* Left 50%: Image Viewer & Thumbnails */}
+                <div className="gallery-half-box">
+                  <div className="main-hero-display">
+                    <img
+                      src={activeItem?.url}
+                      alt={activeItem?.title || "Project Preview"}
+                      style={{ opacity: imgOpacity, transition: "opacity 0.2s ease" }}
+                      onError={(e) => {
+                        e.target.src = "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=1000&auto=format&fit=crop&q=80";
+                      }}
+                    />
+                  </div>
+                  <div style={{ fontSize: "0.76rem", color: "#64748b", marginTop: "8px", fontStyle: "italic", display: "flex", alignItems: "center", gap: "6px" }}>
+                    <i className="fas fa-camera" style={{ fontSize: "0.7rem", color: "var(--primary)" }}></i>
+                    <span>Fig 1.{currentIndex + 1} — {activeItem?.title || "Project Showcase"}</span>
+                  </div>
+
+                  {/* Thumbnails Row */}
+                  <div className="thumbnails-row">
+                    {galleryItems.map((item, idx) => (
+                      <div
+                        key={idx}
+                        className={`thumb-item ${idx === currentIndex ? "active" : ""}`}
+                        onClick={() => handleThumbClick(idx)}
+                      >
+                        <img
+                          src={item.url}
+                          alt={item.title}
+                          onError={(e) => {
+                            e.target.src = "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=300&auto=format&fit=crop&q=80";
+                          }}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Right 50%: Active Screenshot Explanation Card */}
+                <div className="explanation-half-box">
+                  <div className="screen-badge">
+                    <i className="fas fa-info-circle"></i> <span>SCREENSHOT {currentIndex + 1} OF {galleryItems.length}</span>
+                  </div>
+                  <h2 className="screen-title">{activeItem?.title}</h2>
+                  <div className="screen-desc">
+                    {activeItem?.desc
+                      ? formatScreenDesc(activeItem.desc)
+                      : "Click on any thumbnail image to view its specific interface features, UI details, and system functionality."}
+                  </div>
+                </div>
+              </div>
+
+              {/* 3. KEY FEATURES CARD */}
+              {featuresList.length > 0 && (
+                <div className="detail-card">
+                  <h3>
+                    <i className="fas fa-star" style={{ color: "var(--primary)" }}></i> Key Features & Highlights
+                  </h3>
+                  <ul className="features-list">
+                    {featuresList.map((feat, idx) => (
+                      <li key={idx}>{feat}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
-          </div>
-        )}
-
-        {/* Technical Challenges */}
-        {project.challenges && (
-          <div className="glass-panel p-8 rounded-3xl space-y-4 border-l-4 border-l-amber-400">
-            <h2 className="text-xl font-bold text-white flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5 text-amber-400" />
-              <span>Engineering Challenges & Solutions</span>
-            </h2>
-
-            <p className="text-sm text-slate-300 leading-relaxed whitespace-pre-line">
-              {project.challenges}
-            </p>
-          </div>
-        )}
+          )}
+        </div>
       </main>
 
-      <Footer />
+      {/* Footer */}
+      <footer className="footer" style={{ background: "#040711", borderTop: "1px solid rgba(255,255,255,0.05)", padding: "24px 0" }}>
+        <div className="container footer-container" style={{ textAlign: "center" }}>
+          <p style={{ color: "#64748b", fontSize: "0.85rem", margin: 0 }}>
+            &copy; 2026 Abdul Rasheed YP. All rights reserved.
+          </p>
+        </div>
+      </footer>
     </div>
   );
 };

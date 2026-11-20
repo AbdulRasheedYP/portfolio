@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { doc, collection, onSnapshot, query, orderBy } from "firebase/firestore";
+import { doc, collection, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase/config";
 import {
   FALLBACK_SETTINGS,
@@ -11,12 +11,37 @@ import {
 
 const PortfolioContext = createContext(null);
 
+const getCachedData = (key, fallback) => {
+  if (typeof window === "undefined") return fallback;
+  try {
+    const item = localStorage.getItem(`portfolio_${key}`);
+    if (item) {
+      const parsed = JSON.parse(item);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      if (parsed && typeof parsed === "object" && Object.keys(parsed).length > 0) return parsed;
+    }
+  } catch (err) {
+    console.warn(`Error reading cached ${key}:`, err);
+  }
+  return fallback;
+};
+
+const setCachedData = (key, data) => {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(`portfolio_${key}`, JSON.stringify(data));
+  } catch (err) {
+    // Quota exceeded or storage unavailable
+  }
+};
+
 export const PortfolioProvider = ({ children }) => {
-  const [settings, setSettings] = useState(FALLBACK_SETTINGS);
-  const [skills, setSkills] = useState(FALLBACK_SKILLS);
-  const [services, setServices] = useState(FALLBACK_SERVICES);
-  const [projects, setProjects] = useState(FALLBACK_PROJECTS);
-  const [socials, setSocials] = useState(FALLBACK_SOCIALS);
+  // Initialize with cached data for instant 0ms render without flashes
+  const [settings, setSettings] = useState(() => getCachedData("settings", FALLBACK_SETTINGS));
+  const [skills, setSkills] = useState(() => getCachedData("skills", FALLBACK_SKILLS));
+  const [services, setServices] = useState(() => getCachedData("services", FALLBACK_SERVICES));
+  const [projects, setProjects] = useState(() => getCachedData("projects", FALLBACK_PROJECTS));
+  const [socials, setSocials] = useState(() => getCachedData("socials", FALLBACK_SOCIALS));
   const [isLiveSynced, setIsLiveSynced] = useState(false);
 
   useEffect(() => {
@@ -28,7 +53,12 @@ export const PortfolioProvider = ({ children }) => {
         doc(db, "settings", "general"),
         (snap) => {
           if (snap.exists()) {
-            setSettings((prev) => ({ ...prev, ...snap.data() }));
+            const data = snap.data();
+            setSettings((prev) => {
+              const updated = { ...prev, ...data };
+              setCachedData("settings", updated);
+              return updated;
+            });
             setIsLiveSynced(true);
           }
         },
@@ -47,6 +77,7 @@ export const PortfolioProvider = ({ children }) => {
             });
             list.sort((a, b) => (Number(a.order) || 999) - (Number(b.order) || 999));
             setSkills(list);
+            setCachedData("skills", list);
             setIsLiveSynced(true);
           }
         },
@@ -64,6 +95,7 @@ export const PortfolioProvider = ({ children }) => {
               list.push({ id: docSnap.id, ...docSnap.data() });
             });
             setServices(list);
+            setCachedData("services", list);
             setIsLiveSynced(true);
           }
         },
@@ -81,6 +113,7 @@ export const PortfolioProvider = ({ children }) => {
               list.push({ id: docSnap.id, ...docSnap.data() });
             });
             setProjects(list);
+            setCachedData("projects", list);
             setIsLiveSynced(true);
           }
         },
@@ -98,6 +131,7 @@ export const PortfolioProvider = ({ children }) => {
               list.push({ id: docSnap.id, ...docSnap.data() });
             });
             setSocials(list);
+            setCachedData("socials", list);
           }
         },
         (err) => console.warn("Firestore socials notice:", err.message)

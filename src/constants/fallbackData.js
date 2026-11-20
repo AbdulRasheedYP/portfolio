@@ -140,6 +140,45 @@ export const FALLBACK_SOCIALS = [
   { id: "soc-em", name: "Email", url: "mailto:abdulrasheed5140@gmail.com", icon: "Mail" }
 ];
 
+export const DEFAULT_BROTOTYPE_SPRINTS = [
+  {
+    id: "sp-1",
+    period: "Month 1",
+    title: "Python Core & Algorithmic Problem Solving",
+    description: "Mastered Python syntax, OOP concepts, Data Structures & Algorithms, and problem-solving through daily coding challenges.",
+    skills: ["Python 3", "OOP", "DSA", "Clean Code", "Git"],
+    current: false,
+    order: 1
+  },
+  {
+    id: "sp-2",
+    period: "Month 2",
+    title: "Database Engineering & Web Essentials",
+    description: "Designed relational schemas with PostgreSQL, complex queries, table normalization, indexing & responsive HTML5/CSS3/JavaScript.",
+    skills: ["PostgreSQL", "SQL Relational Schemas", "Query Tuning", "JavaScript", "HTML5 & CSS3"],
+    current: false,
+    order: 2
+  },
+  {
+    id: "sp-3",
+    period: "Month 3",
+    title: "Django Framework & RESTful APIs",
+    description: "Architected web apps with Django MVT, Django REST Framework (DRF), JWT token authentication, and ORM query optimization.",
+    skills: ["Django", "Django REST Framework", "JWT Auth", "API Design", "ORM"],
+    current: false,
+    order: 3
+  },
+  {
+    id: "sp-4",
+    period: "Month 4 — Present",
+    title: "Production Systems, DevOps & Deployment",
+    description: "Developing production-grade systems with complex logic (wallets, offer discounts, admin dashboard) and deploying to AWS EC2 with Nginx & Linux.",
+    skills: ["Full-Stack Systems", "AWS EC2", "Nginx", "Linux CLI", "Gunicorn"],
+    current: true,
+    order: 4
+  }
+];
+
 export const FALLBACK_JOURNEY = [
   {
     id: "j-bcom",
@@ -156,59 +195,18 @@ export const FALLBACK_JOURNEY = [
     skills: ["Business Workflows", "Data Logic", "Systematic Analysis"]
   },
   {
-    id: "j-brototype-m1",
-    period: "Month 1",
-    title: "Python Core & Algorithmic Problem Solving",
-    subtitle: "Brototype • Algorithmic Foundation",
-    badge: "Core Fundamentals",
-    type: "tech",
-    current: false,
-    order: 2,
-    icon: "Code2",
-    description:
-      "Mastered Python syntax, functional programming, Object-Oriented Programming (OOP), Data Structures & Algorithms, and problem-solving through daily algorithmic challenges.",
-    skills: ["Python 3", "OOP", "Data Structures", "Algorithms", "Git & GitHub"]
-  },
-  {
-    id: "j-brototype-m2",
-    period: "Month 2",
-    title: "Database Engineering & Web Essentials",
-    subtitle: "Brototype • Data Modeling & Modern Web",
-    badge: "Data & Web Basics",
-    type: "tech",
-    current: false,
-    order: 3,
-    icon: "Database",
-    description:
-      "Designed and normalized relational databases with PostgreSQL, writing complex SQL queries and indexes alongside modern responsive frontends with HTML5, CSS3, and JavaScript.",
-    skills: ["PostgreSQL", "SQL Relational Schemas", "Query Optimization", "JavaScript", "HTML5 & CSS3"]
-  },
-  {
-    id: "j-brototype-m3",
-    period: "Month 3",
-    title: "Django Framework & RESTful APIs",
-    subtitle: "Brototype • Backend Web Engineering",
-    badge: "Framework & APIs",
-    type: "tech",
-    current: false,
-    order: 4,
-    icon: "Server",
-    description:
-      "Architected backend web applications using Django MVT pattern, Django REST Framework (DRF), JWT token authentication, secure session handling, and ORM query optimization.",
-    skills: ["Django", "Django REST Framework", "JWT Auth", "API Design", "ORM Query Tuning"]
-  },
-  {
-    id: "j-brototype-m4",
-    period: "Month 4 — Present",
-    title: "Production Systems, DevOps & Deployment",
-    subtitle: "Brototype • Full-Stack Production & Cloud",
+    id: "j-brototype",
+    period: "2025 — Present",
+    title: "Python Full-Stack Developer Trainee",
+    subtitle: "Brototype • 100% Project-Driven Tech Immersion",
     badge: "Active Trainee",
     type: "tech",
     current: true,
-    order: 5,
-    icon: "Cloud",
+    order: 2,
+    icon: "Code2",
     description:
-      "Developing production-grade full-stack systems with complex business logic (wallet transactions, checkout flows, custom admin portals) and deploying to AWS EC2 with Nginx & Linux.",
-    skills: ["Full-Stack Systems", "AWS EC2", "Nginx", "Linux CLI", "Gunicorn"]
+      "Undergoing intensive project-driven software development training, architecting full-stack web applications, database schemas, REST APIs, and production deployment.",
+    skills: ["Python & Django", "PostgreSQL", "REST APIs", "AWS EC2 & Linux"],
+    sprints: DEFAULT_BROTOTYPE_SPRINTS
   }
 ];

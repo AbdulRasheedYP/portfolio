@@ -854,6 +854,196 @@ p  { font-size: 0.97rem; color: var(--text); }
     border-color: rgba(0, 217, 255, 0.2);
 }
 
+/* Brototype Nested Sub-Timeline Track */
+.brototype-subtimeline {
+    margin-top: 22px;
+    padding-top: 18px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.subtimeline-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.subtimeline-header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.subtimeline-badge-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--primary);
+    box-shadow: 0 0 8px var(--primary);
+}
+
+.subtimeline-heading {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--primary);
+}
+
+.subtimeline-count {
+    font-size: 0.72rem;
+    font-family: monospace;
+    color: #64748b;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 2px 8px;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Sub-timeline connected vertical line */
+.subtimeline-track {
+    position: relative;
+    padding-left: 28px;
+}
+
+.subtimeline-track::before {
+    content: '';
+    position: absolute;
+    left: 11px;
+    top: 8px;
+    bottom: 14px;
+    width: 2px;
+    background: linear-gradient(180deg, rgba(0, 217, 255, 0.5) 0%, rgba(0, 217, 255, 0.25) 75%, rgba(52, 211, 153, 0.4) 100%);
+}
+
+.subtimeline-step {
+    position: relative;
+    margin-bottom: 16px;
+}
+
+.subtimeline-step:last-child {
+    margin-bottom: 0;
+}
+
+/* Node on sub-timeline line */
+.subtimeline-node {
+    position: absolute;
+    left: -28px;
+    top: 3px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #0b1424;
+    border: 1.5px solid rgba(0, 217, 255, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    transition: all 0.2s ease;
+}
+
+.subtimeline-node-num {
+    font-size: 0.68rem;
+    font-family: monospace;
+    font-weight: 700;
+    color: #94a3b8;
+}
+
+.subtimeline-step-active .subtimeline-node {
+    border-color: #34d399;
+    background: #081d19;
+    box-shadow: 0 0 10px rgba(52, 211, 153, 0.4);
+}
+
+.subtimeline-node-active-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #34d399;
+    box-shadow: 0 0 8px #34d399;
+}
+
+/* Content block */
+.subtimeline-body {
+    padding: 10px 14px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.2s ease;
+}
+
+.subtimeline-step:hover .subtimeline-body {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.09);
+}
+
+.subtimeline-step-active .subtimeline-body {
+    background: rgba(52, 211, 153, 0.03);
+    border-color: rgba(52, 211, 153, 0.2);
+}
+
+.subtimeline-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 3px;
+}
+
+.subtimeline-period {
+    font-size: 0.74rem;
+    font-family: monospace;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.subtimeline-active-badge {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #34d399;
+    background: rgba(52, 211, 153, 0.12);
+    padding: 1px 6px;
+    border-radius: 4px;
+    border: 1px solid rgba(52, 211, 153, 0.25);
+}
+
+.subtimeline-title {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 3px;
+    line-height: 1.3;
+}
+
+.subtimeline-desc {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    line-height: 1.45;
+    margin-bottom: 6px;
+}
+
+.subtimeline-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.subtimeline-tag {
+    font-size: 0.7rem;
+    padding: 2px 7px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.04);
+    color: #cbd5e1;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.subtimeline-tag.subtimeline-tag-active {
+    background: rgba(52, 211, 153, 0.08);
+    color: #a7f3d0;
+    border-color: rgba(52, 211, 153, 0.2);
+}
+
 /* Timeline Pivot Marker */
 .timeline-pivot {
     position: relative;

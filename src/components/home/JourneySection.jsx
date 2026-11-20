@@ -1,15 +1,11 @@
 import React from "react";
-import {
-  GraduationCap,
-  Code2,
-  Database,
-  Server,
-  Cloud,
-  Terminal,
-  ArrowDown
-} from "lucide-react";
+import { GraduationCap, Code2, ArrowDown } from "lucide-react";
 import { usePortfolio } from "../../context/PortfolioContext";
-import { formatBgStyle, FALLBACK_JOURNEY } from "../../constants/fallbackData";
+import {
+  formatBgStyle,
+  FALLBACK_JOURNEY,
+  DEFAULT_BROTOTYPE_SPRINTS
+} from "../../constants/fallbackData";
 
 export const JourneySection = () => {
   const { settings = {}, journey = [] } = usePortfolio();
@@ -17,120 +13,163 @@ export const JourneySection = () => {
 
   const displayList = Array.isArray(journey) && journey.length > 0 ? journey : FALLBACK_JOURNEY;
 
-  const renderIcon = (iconName, isCurrent) => {
-    switch (iconName) {
-      case "GraduationCap":
-        return <GraduationCap className="timeline-icon" />;
-      case "Database":
-        return <Database className={`timeline-icon ${isCurrent ? "text-primary" : ""}`} />;
-      case "Server":
-        return <Server className={`timeline-icon ${isCurrent ? "text-primary" : ""}`} />;
-      case "Cloud":
-        return <Cloud className={`timeline-icon ${isCurrent ? "text-primary" : ""}`} />;
-      case "Terminal":
-        return <Terminal className={`timeline-icon ${isCurrent ? "text-primary" : ""}`} />;
-      case "Code2":
-      default:
-        return <Code2 className={`timeline-icon ${isCurrent ? "text-primary" : ""}`} />;
-    }
-  };
+  // Find academic and brototype milestones
+  const academic = displayList.find((item) => item.type === "academic") || displayList[0] || FALLBACK_JOURNEY[0];
+  const brototype = displayList.find((item) => item.type === "tech" || item.id === "j-brototype") || displayList[1] || FALLBACK_JOURNEY[1];
+
+  // Sprints inside Brototype (from brototype.sprints or fallback)
+  const sprints = Array.isArray(brototype.sprints) && brototype.sprints.length > 0
+    ? brototype.sprints
+    : DEFAULT_BROTOTYPE_SPRINTS;
 
   return (
     <section id="journey" className="section journey" style={journeyStyle}>
       <div className="container">
         {/* Section Title */}
         <div className="section-title">
-          <span className="section-tag">Career Milestones</span>
+          <span className="section-tag">Career Evolution</span>
           <h2>My Journey</h2>
           <p>From Commerce & Analytics to Full-Stack Software Engineering</p>
         </div>
 
-        {/* Vertical Connected Timeline */}
+        {/* Main Vertical Connected Timeline */}
         <div className="timeline-container">
           {/* Vertical Center Spine */}
           <div className="timeline-spine" aria-hidden="true"></div>
 
-          {displayList.map((item, index) => {
-            const isLeft = index % 2 === 0;
-            const isCurrent = Boolean(item.current);
-            const isPivotPoint = index === 1 && displayList[0]?.type === "academic";
+          {/* 1. Academic Milestone: B.Com */}
+          <div className="timeline-item timeline-item-left">
+            <div className="timeline-node" title={academic.title}>
+              <GraduationCap className="timeline-icon" />
+            </div>
 
-            return (
-              <React.Fragment key={item.id || `journey-${index}`}>
-                {/* Career Pivot Marker between B.Com and Tech Sprints */}
-                {isPivotPoint && (
-                  <div className="timeline-pivot">
-                    <div className="timeline-pivot-pill">
-                      <ArrowDown className="w-3.5 h-3.5 text-primary animate-bounce" />
-                      <span>Career Pivot to Software Engineering</span>
-                    </div>
-                  </div>
+            <div className="timeline-content glass-panel">
+              <div className="timeline-header">
+                <span className="timeline-date-badge">{academic.period}</span>
+                {academic.badge && (
+                  <span className="timeline-step-label">{academic.badge}</span>
                 )}
+              </div>
 
-                <div
-                  className={`timeline-item ${
-                    isLeft ? "timeline-item-left" : "timeline-item-right"
-                  } ${isCurrent ? "timeline-item-active" : ""}`}
-                >
-                  {/* Center Node on the spine */}
-                  <div
-                    className={`timeline-node ${isCurrent ? "timeline-node-active" : ""}`}
-                    title={item.title}
-                  >
-                    {renderIcon(item.icon, isCurrent)}
-                    {isCurrent && <span className="timeline-pulse-ring" aria-hidden="true"></span>}
-                  </div>
+              <h3 className="timeline-title">{academic.title}</h3>
+              {academic.subtitle && (
+                <p className="timeline-institution">{academic.subtitle}</p>
+              )}
 
-                  {/* Timeline Card */}
-                  <div className="timeline-content glass-panel">
-                    <div className="timeline-header">
-                      <span
-                        className={`timeline-date-badge ${
-                          isCurrent ? "date-badge-active" : ""
-                        }`}
-                      >
-                        {item.period}
-                      </span>
-                      {isCurrent ? (
-                        <span className="timeline-active-tag">
-                          <span className="live-dot"></span>
-                          Active Trainee
-                        </span>
-                      ) : (
-                        item.badge && (
-                          <span className="timeline-step-label">{item.badge}</span>
-                        )
-                      )}
-                    </div>
+              {academic.description && (
+                <p className="timeline-desc">{academic.description}</p>
+              )}
 
-                    <h3 className="timeline-title">{item.title}</h3>
-                    {item.subtitle && (
-                      <p className="timeline-institution">{item.subtitle}</p>
-                    )}
-
-                    {item.description && (
-                      <p className="timeline-desc">{item.description}</p>
-                    )}
-
-                    {Array.isArray(item.skills) && item.skills.length > 0 && (
-                      <div className="timeline-tags">
-                        {item.skills.map((skill, sIdx) => (
-                          <span
-                            key={sIdx}
-                            className={`timeline-tag ${
-                              isCurrent || item.type === "tech" ? "tag-cyan" : ""
-                            }`}
-                          >
-                            {skill}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+              {Array.isArray(academic.skills) && academic.skills.length > 0 && (
+                <div className="timeline-tags">
+                  {academic.skills.map((skill, sIdx) => (
+                    <span key={sIdx} className="timeline-tag">
+                      {skill}
+                    </span>
+                  ))}
                 </div>
-              </React.Fragment>
-            );
-          })}
+              )}
+            </div>
+          </div>
+
+          {/* Pivot Connector on Central Spine */}
+          <div className="timeline-pivot">
+            <div className="timeline-pivot-pill">
+              <ArrowDown className="w-3.5 h-3.5 text-primary animate-bounce" />
+              <span>Career Pivot to Software Engineering</span>
+            </div>
+          </div>
+
+          {/* 2. Brototype Immersion with Nested Month-by-Month Sub-Timeline */}
+          <div className="timeline-item timeline-item-right timeline-item-active">
+            <div className="timeline-node timeline-node-active" title={brototype.title}>
+              <Code2 className="timeline-icon text-primary" />
+              <span className="timeline-pulse-ring" aria-hidden="true"></span>
+            </div>
+
+            <div className="timeline-content glass-panel">
+              <div className="timeline-header">
+                <span className="timeline-date-badge date-badge-active">
+                  {brototype.period}
+                </span>
+                <span className="timeline-active-tag">
+                  <span className="live-dot"></span>
+                  Active Trainee
+                </span>
+              </div>
+
+              <h3 className="timeline-title">{brototype.title}</h3>
+              {brototype.subtitle && (
+                <p className="timeline-institution">{brototype.subtitle}</p>
+              )}
+
+              {brototype.description && (
+                <p className="timeline-desc">{brototype.description}</p>
+              )}
+
+              {/* Sub-Timeline: Month-by-Month Progression Line */}
+              <div className="brototype-subtimeline">
+                <div className="subtimeline-header">
+                  <div className="subtimeline-header-left">
+                    <span className="subtimeline-badge-dot"></span>
+                    <span className="subtimeline-heading">Curriculum & Learning Track</span>
+                  </div>
+                  <span className="subtimeline-count">{sprints.length} Sprints</span>
+                </div>
+
+                <div className="subtimeline-track">
+                  {sprints.map((sprint, idx) => (
+                    <div
+                      key={sprint.id || idx}
+                      className={`subtimeline-step ${
+                        sprint.current ? "subtimeline-step-active" : ""
+                      }`}
+                    >
+                      {/* Node on the sub-timeline line */}
+                      <div className="subtimeline-node">
+                        {sprint.current ? (
+                          <span className="subtimeline-node-active-dot"></span>
+                        ) : (
+                          <span className="subtimeline-node-num">{idx + 1}</span>
+                        )}
+                      </div>
+
+                      {/* Step Content */}
+                      <div className="subtimeline-body">
+                        <div className="subtimeline-meta">
+                          <span className="subtimeline-period">{sprint.period}</span>
+                          {sprint.current && (
+                            <span className="subtimeline-active-badge">In Progress</span>
+                          )}
+                        </div>
+
+                        <h4 className="subtimeline-title">{sprint.title}</h4>
+
+                        {sprint.description && (
+                          <p className="subtimeline-desc">{sprint.description}</p>
+                        )}
+
+                        {Array.isArray(sprint.skills) && sprint.skills.length > 0 && (
+                          <div className="subtimeline-tags">
+                            {sprint.skills.map((skill, sIdx) => (
+                              <span
+                                key={sIdx}
+                                className={`subtimeline-tag ${
+                                  sprint.current ? "subtimeline-tag-active" : ""
+                                }`}
+                              >
+                                {skill}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>

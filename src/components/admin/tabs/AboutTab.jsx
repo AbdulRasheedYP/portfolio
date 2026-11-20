@@ -76,6 +76,7 @@ export const AboutTab = () => {
           value={formData.resumeUrl}
           onChange={(url) => setFormData({ ...formData, resumeUrl: url })}
           folder="resumes"
+          accept="application/pdf,image/*,.pdf"
         />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

@@ -15,21 +15,49 @@ import { db, storage } from "./config";
 // --- Storage Upload ---
 export const uploadFileToStorage = (file, path, onProgress) => {
   return new Promise((resolve, reject) => {
+    // Determine content type safely
+    let contentType = file.type;
+    if (!contentType) {
+      if (file.name.toLowerCase().endsWith(".pdf")) contentType = "application/pdf";
+      else if (file.name.toLowerCase().endsWith(".png")) contentType = "image/png";
+      else if (file.name.toLowerCase().endsWith(".jpg") || file.name.toLowerCase().endsWith(".jpeg")) contentType = "image/jpeg";
+      else contentType = "application/octet-stream";
+    }
+
+    const metadata = { contentType };
     const storageRef = ref(storage, path);
-    const uploadTask = uploadBytesResumable(storageRef, file);
+    const uploadTask = uploadBytesResumable(storageRef, file, metadata);
+
+    // Timeout after 25s so the UI never hangs indefinitely if blocked by rules or CORS
+    const timeoutTimer = setTimeout(() => {
+      try {
+        uploadTask.cancel();
+      } catch (e) {}
+      reject(new Error("Upload timed out (25s). Firebase Storage might be blocking uploads or rules require update."));
+    }, 25000);
 
     uploadTask.on(
       "state_changed",
       (snapshot) => {
-        const percent = Math.round(
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-        );
-        if (onProgress) onProgress(percent);
+        if (snapshot.totalBytes > 0) {
+          const percent = Math.round(
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+          );
+          if (onProgress) onProgress(percent);
+        }
       },
-      (error) => reject(error),
+      (error) => {
+        clearTimeout(timeoutTimer);
+        reject(error);
+      },
       async () => {
-        const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
-        resolve(downloadUrl);
+        clearTimeout(timeoutTimer);
+        try {
+          const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
+          resolve(downloadUrl);
+        } catch (err) {
+          reject(err);
+        }
       }
     );
   });

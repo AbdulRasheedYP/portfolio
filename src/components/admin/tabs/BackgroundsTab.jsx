@@ -12,6 +12,7 @@ export const BackgroundsTab = () => {
   const [formData, setFormData] = useState({
     bgHero: "",
     bgAbout: "",
+    bgJourney: "",
     bgSkills: "",
     bgServices: "",
     bgProjects: "",
@@ -31,6 +32,7 @@ export const BackgroundsTab = () => {
       setFormData({
         bgHero: settings.bgHero || "",
         bgAbout: settings.bgAbout || "",
+        bgJourney: settings.bgJourney || "",
         bgSkills: settings.bgSkills || "",
         bgServices: settings.bgServices || "",
         bgProjects: settings.bgProjects || "",
@@ -53,6 +55,7 @@ export const BackgroundsTab = () => {
       const backgrounds = {
         bgHero: formData.bgHero || "",
         bgAbout: formData.bgAbout || "",
+        bgJourney: formData.bgJourney || "",
         bgSkills: formData.bgSkills || "",
         bgServices: formData.bgServices || "",
         bgProjects: formData.bgProjects || "",
@@ -107,6 +110,12 @@ export const BackgroundsTab = () => {
               label="About Section Background"
               value={formData.bgAbout}
               onChange={(url) => setFormData({ ...formData, bgAbout: url })}
+              folder="backgrounds"
+            />
+            <ImageUploader
+              label="Journey Section Background"
+              value={formData.bgJourney}
+              onChange={(url) => setFormData({ ...formData, bgJourney: url })}
               folder="backgrounds"
             />
             <ImageUploader

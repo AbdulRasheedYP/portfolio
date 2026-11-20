@@ -8,6 +8,7 @@ export const ContactSection = () => {
   const { settings } = usePortfolio();
 
   const [formData, setFormData] = useState({ name: "", email: "", message: "" });
+  const [honeypot, setHoneypot] = useState("");
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -17,6 +18,9 @@ export const ContactSection = () => {
     : undefined;
 
   const validate = () => {
+    // If bot filled the honeypot field, fail silently
+    if (honeypot) return false;
+
     const errs = {};
     if (!formData.name.trim() || formData.name.trim().length < 3) {
       errs.name = "Name must be at least 3 characters";
@@ -152,6 +156,18 @@ export const ContactSection = () => {
             </div>
 
             <form id="contact-form" className="contact-form" onSubmit={handleSubmit}>
+              {/* Anti-spam honeypot field (hidden from real users) */}
+              <input
+                type="text"
+                name="company_website"
+                value={honeypot}
+                onChange={(e) => setHoneypot(e.target.value)}
+                style={{ display: "none" }}
+                tabIndex={-1}
+                autoComplete="off"
+                aria-hidden="true"
+              />
+
               <div className={`form-group ${errors.name ? "error" : ""}`}>
                 <input
                   type="text"

@@ -11,14 +11,19 @@ export const JourneySection = () => {
   const { settings = {}, journey = [] } = usePortfolio();
   const journeyStyle = formatBgStyle(settings.bgJourney);
 
-  const displayList = Array.isArray(journey) && journey.length > 0 ? journey : FALLBACK_JOURNEY;
+  const displayList = Array.isArray(journey) && journey.length > 0
+    ? journey
+    : [...FALLBACK_JOURNEY, ...DEFAULT_BROTOTYPE_SPRINTS];
 
   // Find academic and brototype milestones
-  const academic = displayList.find((item) => item.type === "academic") || displayList[0] || FALLBACK_JOURNEY[0];
-  const brototype = displayList.find((item) => item.type === "tech" || item.id === "j-brototype") || displayList[1] || FALLBACK_JOURNEY[1];
+  const academic = displayList.find((item) => item.type === "academic") || FALLBACK_JOURNEY[0];
+  const brototype = displayList.find((item) => item.type === "tech" && item.id !== "j-bcom") || FALLBACK_JOURNEY[1];
 
-  // Sprints inside Brototype (from brototype.sprints or fallback)
-  const sprints = Array.isArray(brototype.sprints) && brototype.sprints.length > 0
+  // Sprints inside Brototype (from individual sprint docs or brototype.sprints or default fallback)
+  const sprintDocs = displayList.filter((item) => item.type === "sprint");
+  const sprints = sprintDocs.length > 0
+    ? [...sprintDocs].sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0))
+    : Array.isArray(brototype.sprints) && brototype.sprints.length > 0
     ? brototype.sprints
     : DEFAULT_BROTOTYPE_SPRINTS;
 

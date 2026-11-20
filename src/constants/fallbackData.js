@@ -148,7 +148,8 @@ export const DEFAULT_BROTOTYPE_SPRINTS = [
     description: "Mastered Python syntax, OOP concepts, Data Structures & Algorithms, and problem-solving through daily coding challenges.",
     skills: ["Python 3", "OOP", "DSA", "Clean Code", "Git"],
     current: false,
-    order: 1
+    order: 1,
+    type: "sprint"
   },
   {
     id: "sp-2",
@@ -157,7 +158,8 @@ export const DEFAULT_BROTOTYPE_SPRINTS = [
     description: "Designed relational schemas with PostgreSQL, complex queries, table normalization, indexing & responsive HTML5/CSS3/JavaScript.",
     skills: ["PostgreSQL", "SQL Relational Schemas", "Query Tuning", "JavaScript", "HTML5 & CSS3"],
     current: false,
-    order: 2
+    order: 2,
+    type: "sprint"
   },
   {
     id: "sp-3",
@@ -166,7 +168,8 @@ export const DEFAULT_BROTOTYPE_SPRINTS = [
     description: "Architected web apps with Django MVT, Django REST Framework (DRF), JWT token authentication, and ORM query optimization.",
     skills: ["Django", "Django REST Framework", "JWT Auth", "API Design", "ORM"],
     current: false,
-    order: 3
+    order: 3,
+    type: "sprint"
   },
   {
     id: "sp-4",
@@ -175,7 +178,8 @@ export const DEFAULT_BROTOTYPE_SPRINTS = [
     description: "Developing production-grade systems with complex logic (wallets, offer discounts, admin dashboard) and deploying to AWS EC2 with Nginx & Linux.",
     skills: ["Full-Stack Systems", "AWS EC2", "Nginx", "Linux CLI", "Gunicorn"],
     current: true,
-    order: 4
+    order: 4,
+    type: "sprint"
   }
 ];
 

@@ -178,6 +178,83 @@ export const updateMediaSettings = async ({ backgrounds, gallery }) => {
   await Promise.all(promises);
 };
 
+export const syncAllDataWithCV = async (
+  cvSettings,
+  cvSkills,
+  cvServices,
+  cvSocials,
+  cvJourney
+) => {
+  const promises = [];
+
+  // 1. Settings General (Bio, Roles, Resume, Location)
+  if (cvSettings) {
+    const docRef = doc(db, "settings", "general");
+    promises.push(
+      setDoc(
+        docRef,
+        {
+          subtitle: cvSettings.subtitle,
+          name: cvSettings.name,
+          roles: cvSettings.roles,
+          heroDesc: cvSettings.heroDesc,
+          about: cvSettings.about,
+          resumeUrl: cvSettings.resumeUrl,
+          location: cvSettings.location,
+          phone: cvSettings.phone,
+          email: cvSettings.email,
+          freelanceState: cvSettings.freelanceState,
+          updatedAt: serverTimestamp()
+        },
+        { merge: true }
+      )
+    );
+  }
+
+  // 2. Socials
+  if (Array.isArray(cvSocials)) {
+    for (const soc of cvSocials) {
+      const socRef = doc(db, "socials", soc.id);
+      promises.push(
+        setDoc(socRef, { ...soc, updatedAt: serverTimestamp() }, { merge: true })
+      );
+    }
+  }
+
+  // 3. Skills
+  if (Array.isArray(cvSkills)) {
+    for (const sk of cvSkills) {
+      const skRef = doc(db, "skills", sk.id);
+      promises.push(
+        setDoc(skRef, { ...sk, updatedAt: serverTimestamp() }, { merge: true })
+      );
+    }
+  }
+
+  // 4. Services
+  if (Array.isArray(cvServices)) {
+    for (const srv of cvServices) {
+      const srvRef = doc(db, "services", srv.id);
+      promises.push(
+        setDoc(srvRef, { ...srv, updatedAt: serverTimestamp() }, { merge: true })
+      );
+    }
+  }
+
+  // 5. Journey Milestones
+  if (Array.isArray(cvJourney)) {
+    for (const jm of cvJourney) {
+      const { sprints: _sp, ...payload } = jm;
+      const jmRef = doc(db, "journey", jm.id);
+      promises.push(
+        setDoc(jmRef, { ...payload, updatedAt: serverTimestamp() }, { merge: true })
+      );
+    }
+  }
+
+  await Promise.all(promises);
+};
+
 // --- Projects ---
 export const addProjectDoc = async (projectData) => {
   return await addDoc(collection(db, "projects"), {

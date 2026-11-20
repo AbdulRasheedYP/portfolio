@@ -45,6 +45,118 @@ const setCachedData = (key, data) => {
   }
 };
 
+// Sanitizers to prevent obsolete database documents from overwriting new CV data
+const sanitizeSettings = (data) => {
+  if (!data || typeof data !== "object") return data;
+  const cleaned = { ...data };
+
+  // If roles is old generic string, upgrade to CV-aligned roles
+  if (
+    !cleaned.roles ||
+    cleaned.roles.trim() === "Python Full-Stack Developer, Django Developer, Backend Specialist, Web Developer" ||
+    cleaned.roles.trim() === "Python Full-Stack Developer"
+  ) {
+    cleaned.roles = FALLBACK_SETTINGS.roles;
+  }
+
+  // If heroDesc is old generic string, upgrade to CV-aligned heroDesc
+  if (
+    !cleaned.heroDesc ||
+    cleaned.heroDesc.includes("Passionate about Python, backend architecture, and continuous learning")
+  ) {
+    cleaned.heroDesc = FALLBACK_SETTINGS.heroDesc;
+  }
+
+  // If about is old student transition bio, upgrade to CV-aligned bio
+  if (
+    !cleaned.about ||
+    cleaned.about.includes("I'm a commerce graduate transitioning into software development") ||
+    cleaned.about.includes("My goal is to become a job-ready full-stack developer")
+  ) {
+    cleaned.about = FALLBACK_SETTINGS.about;
+  }
+
+  // If resumeUrl is old CV, upgrade to new CV
+  if (
+    !cleaned.resumeUrl ||
+    cleaned.resumeUrl === "/img/AbdulrasheedCV.pdf" ||
+    cleaned.resumeUrl.endsWith("AbdulrasheedCV.pdf")
+  ) {
+    cleaned.resumeUrl = "/img/AbdulRasheedCV_new.pdf";
+  }
+
+  // If location is old, update
+  if (!cleaned.location || cleaned.location === "Malappuram, Kerala, India") {
+    cleaned.location = "Kerala, India";
+  }
+
+  return cleaned;
+};
+
+const sanitizeSocials = (list) => {
+  if (!Array.isArray(list) || list.length === 0) return FALLBACK_SOCIALS;
+  return list.map((s) => {
+    if (s.name === "GitHub" && (s.url?.includes("Rashi0099") || !s.url)) {
+      return { ...s, url: "https://github.com/AbdulRasheedYP" };
+    }
+    if (
+      s.name === "LinkedIn" &&
+      (!s.url || s.url === "https://www.linkedin.com/" || s.url === "https://www.linkedin.com")
+    ) {
+      return { ...s, url: "https://www.linkedin.com/in/abdulrasheedyp/" };
+    }
+    return s;
+  });
+};
+
+const sanitizeSkills = (list) => {
+  if (!Array.isArray(list) || list.length === 0) return FALLBACK_SKILLS;
+  const hasAI = list.some((s) => s.name?.includes("LLM") || s.name?.includes("AI"));
+  const hasDRF = list.some((s) => s.name?.includes("Django REST Framework") || s.name === "DRF");
+  if (!hasAI || !hasDRF) {
+    const existingNames = new Set(list.map((s) => s.name?.toLowerCase()));
+    const missing = FALLBACK_SKILLS.filter(
+      (fs) => !existingNames.has(fs.name?.toLowerCase())
+    );
+    return [...list, ...missing].sort(
+      (a, b) => (Number(a.order) || 99) - (Number(b.order) || 99)
+    );
+  }
+  return list;
+};
+
+const sanitizeServices = (list) => {
+  if (!Array.isArray(list) || list.length === 0) return FALLBACK_SERVICES;
+  const hasAI = list.some((s) => s.title?.includes("AI"));
+  if (!hasAI) {
+    const aiService = FALLBACK_SERVICES.find((s) => s.id === "srv-ai");
+    if (aiService) {
+      return [list[0], aiService, ...list.slice(1)];
+    }
+  }
+  return list;
+};
+
+const sanitizeJourney = (list) => {
+  if (!Array.isArray(list) || list.length === 0) return FALLBACK_JOURNEY;
+  return list.map((item) => {
+    if (item.type === "academic" && (!item.subtitle || !item.subtitle.includes("Sullamussalam"))) {
+      return {
+        ...item,
+        subtitle: "Sullamussalam Science College • University of Calicut | 2025"
+      };
+    }
+    if (item.type === "tech" && item.id !== "j-bcom" && (!item.subtitle || !item.subtitle.includes("2 Years"))) {
+      return {
+        ...item,
+        title: "Software Development Training Program",
+        subtitle: "Brototype • Duration: 2 Years | Intensive Project-Driven Training"
+      };
+    }
+    return item;
+  });
+};
+
 export const PortfolioProvider = ({ children }) => {
   // Initialize with cached data for instant 0ms render without flashes
   const [settings, setSettings] = useState(() => getCachedData("settings", FALLBACK_SETTINGS));
@@ -65,8 +177,9 @@ export const PortfolioProvider = ({ children }) => {
         (snap) => {
           if (snap.exists()) {
             const data = snap.data();
+            const cleanData = sanitizeSettings(data);
             setSettings((prev) => {
-              const updated = { ...prev, ...data };
+              const updated = { ...prev, ...cleanData };
               setCachedData("settings", updated);
               return updated;
             });
@@ -121,8 +234,9 @@ export const PortfolioProvider = ({ children }) => {
               list.push({ id: docSnap.id, ...docSnap.data() });
             });
             list.sort((a, b) => (Number(a.order) || 999) - (Number(b.order) || 999));
-            setSkills(list);
-            setCachedData("skills", list);
+            const upgraded = sanitizeSkills(list);
+            setSkills(upgraded);
+            setCachedData("skills", upgraded);
             setIsLiveSynced(true);
           }
         },
@@ -139,8 +253,9 @@ export const PortfolioProvider = ({ children }) => {
             snapshot.forEach((docSnap) => {
               list.push({ id: docSnap.id, ...docSnap.data() });
             });
-            setServices(list);
-            setCachedData("services", list);
+            const upgraded = sanitizeServices(list);
+            setServices(upgraded);
+            setCachedData("services", upgraded);
             setIsLiveSynced(true);
           }
         },
@@ -175,8 +290,9 @@ export const PortfolioProvider = ({ children }) => {
             snapshot.forEach((docSnap) => {
               list.push({ id: docSnap.id, ...docSnap.data() });
             });
-            setSocials(list);
-            setCachedData("socials", list);
+            const upgraded = sanitizeSocials(list);
+            setSocials(upgraded);
+            setCachedData("socials", upgraded);
           }
         },
         (err) => console.warn("Firestore socials notice:", err.message)
@@ -193,8 +309,9 @@ export const PortfolioProvider = ({ children }) => {
               list.push({ id: docSnap.id, ...docSnap.data() });
             });
             list.sort((a, b) => (Number(a.order) || 999) - (Number(b.order) || 999));
-            setJourney(list);
-            setCachedData("journey", list);
+            const upgraded = sanitizeJourney(list);
+            setJourney(upgraded);
+            setCachedData("journey", upgraded);
           } else {
             setJourney(FALLBACK_JOURNEY);
             setCachedData("journey", FALLBACK_JOURNEY);

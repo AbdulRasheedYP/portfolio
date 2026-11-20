@@ -503,6 +503,7 @@ p  { font-size: 0.97rem; color: var(--text); }
 ============================================================ */
 .about {
     position: relative;
+    background-image: url('/img/working_with_lap.jpg');
     background-position: center;
     background-size: cover;
     background-repeat: no-repeat;
@@ -598,7 +599,7 @@ p  { font-size: 0.97rem; color: var(--text); }
 ============================================================ */
 .skills {
     position: relative;
-    background-image: linear-gradient(160deg, rgba(15, 23, 41, 0.95), rgba(10, 15, 30, 1));
+    background-image: url('/img/lap.jpg');
     background-position: center;
     background-size: cover;
     background-repeat: no-repeat;
@@ -667,6 +668,7 @@ p  { font-size: 0.97rem; color: var(--text); }
 ============================================================ */
 #services {
     position: relative;
+    background-image: url('/img/lap.jpg');
     background-position: center;
     background-size: cover;
     background-repeat: no-repeat;
@@ -738,6 +740,7 @@ p  { font-size: 0.97rem; color: var(--text); }
 
 #projects {
     position: relative;
+    background-image: url('/img/lap.jpg');
     background-position: center;
     background-size: cover;
     background-repeat: no-repeat;
@@ -972,6 +975,7 @@ p  { font-size: 0.97rem; color: var(--text); }
 ============================================================ */
 #contact {
     position: relative;
+    background-image: url('/img/team.jpeg');
     background-position: center;
     background-size: cover;
     background-repeat: no-repeat;

@@ -1,5 +1,4 @@
 import React from "react";
-import { Link } from "react-router-dom";
 import { usePortfolio } from "../../context/PortfolioContext";
 
 export const Footer = () => {
@@ -26,9 +25,6 @@ export const Footer = () => {
                 <i className={s.icon || "fas fa-link"}></i>
               </a>
             ))}
-            <Link to="/admin" title="Admin Portal" style={{ opacity: 0.4 }}>
-              <i className="fas fa-shield-alt"></i>
-            </Link>
           </div>
         </div>
       </div>

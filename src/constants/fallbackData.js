@@ -14,12 +14,28 @@ My goal is to become a job-ready full-stack developer with strong fundamentals i
   profileImg: "/img/profile-pic.png",
   resumeUrl: "/img/AbdulrasheedCV.pdf",
   freelanceState: "available",
-  bgHero: "",
-  bgAbout: "",
-  bgSkills: "",
-  bgServices: "",
-  bgProjects: "",
-  bgContact: ""
+  bgHero: "/img/working_with_lap.jpg",
+  bgAbout: "/img/working_with_lap.jpg",
+  bgSkills: "/img/lap.jpg",
+  bgServices: "/img/lap.jpg",
+  bgProjects: "/img/lap.jpg",
+  bgContact: "/img/team.jpeg"
+};
+
+export const formatBgUrl = (url) => {
+  if (!url) return undefined;
+  let trimmed = url.trim();
+  if (!trimmed) return undefined;
+  if (trimmed.endsWith(".jpe")) trimmed += "g";
+  if (
+    trimmed.startsWith("http://") ||
+    trimmed.startsWith("https://") ||
+    trimmed.startsWith("data:") ||
+    trimmed.startsWith("/")
+  ) {
+    return trimmed;
+  }
+  return `/${trimmed}`;
 };
 
 export const FALLBACK_SKILLS = [

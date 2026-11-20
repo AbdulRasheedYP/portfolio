@@ -1,11 +1,12 @@
 import React from "react";
 import { usePortfolio } from "../../context/PortfolioContext";
+import { formatBgUrl } from "../../constants/fallbackData";
 
 export const SkillsSection = () => {
   const { skills, settings } = usePortfolio();
 
   const skillsStyle = settings.bgSkills
-    ? { backgroundImage: `url('${settings.bgSkills}')` }
+    ? { backgroundImage: `url('${formatBgUrl(settings.bgSkills)}')` }
     : undefined;
 
   const formatIconClass = (icon) => {

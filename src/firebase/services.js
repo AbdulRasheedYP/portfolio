@@ -9,7 +9,8 @@ import {
   getDoc,
   query,
   orderBy,
-  serverTimestamp
+  serverTimestamp,
+  writeBatch
 } from "firebase/firestore";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { db, storage } from "./config";
@@ -80,6 +81,28 @@ export const addSkillDoc = async (skillData) => {
   });
 };
 
+export const updateSkillDoc = async (id, skillData) => {
+  const docRef = doc(db, "skills", id);
+  await updateDoc(docRef, {
+    ...skillData,
+    updatedAt: serverTimestamp()
+  });
+};
+
+export const updateSkillsOrder = async (orderedSkills) => {
+  const batch = writeBatch(db);
+  orderedSkills.forEach((skill, index) => {
+    if (skill.id) {
+      const docRef = doc(db, "skills", skill.id);
+      batch.update(docRef, {
+        order: index + 1,
+        updatedAt: serverTimestamp()
+      });
+    }
+  });
+  await batch.commit();
+};
+
 export const deleteSkillDoc = async (id) => {
   await deleteDoc(doc(db, "skills", id));
 };
@@ -89,6 +112,14 @@ export const addServiceDoc = async (serviceData) => {
   return await addDoc(collection(db, "services"), {
     ...serviceData,
     createdAt: serverTimestamp()
+  });
+};
+
+export const updateServiceDoc = async (id, serviceData) => {
+  const docRef = doc(db, "services", id);
+  await updateDoc(docRef, {
+    ...serviceData,
+    updatedAt: serverTimestamp()
   });
 };
 

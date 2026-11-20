@@ -1,11 +1,12 @@
 import React from "react";
 import { usePortfolio } from "../../context/PortfolioContext";
+import { formatBgUrl } from "../../constants/fallbackData";
 
 export const ServicesSection = () => {
   const { services, settings } = usePortfolio();
 
   const servicesStyle = settings.bgServices
-    ? { backgroundImage: `url('${settings.bgServices}')` }
+    ? { backgroundImage: `url('${formatBgUrl(settings.bgServices)}')` }
     : undefined;
 
   const formatIcon = (icon) => {

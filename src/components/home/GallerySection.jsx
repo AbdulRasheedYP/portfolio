@@ -1,5 +1,6 @@
 import React from "react";
 import { usePortfolio } from "../../context/PortfolioContext";
+import { formatBgUrl } from "../../constants/fallbackData";
 
 export const GallerySection = () => {
   const { settings } = usePortfolio();
@@ -21,37 +22,37 @@ export const GallerySection = () => {
         <div className="aesthetic-gallery">
           {settings.bgGal1 && (
             <div className="gal-item gal-large-8" id="gal1-wrapper">
-              <img src={settings.bgGal1} alt="Gallery Image 1" />
+              <img src={formatBgUrl(settings.bgGal1)} alt="Gallery Image 1" />
             </div>
           )}
           {settings.bgGal2 && (
             <div className="gal-item gal-tall-4" id="gal2-wrapper">
-              <img src={settings.bgGal2} alt="Gallery Image 2" />
+              <img src={formatBgUrl(settings.bgGal2)} alt="Gallery Image 2" />
             </div>
           )}
           {settings.bgGal3 && (
             <div className="gal-item gal-span-4" id="gal3-wrapper">
-              <img src={settings.bgGal3} alt="Gallery Image 3" />
+              <img src={formatBgUrl(settings.bgGal3)} alt="Gallery Image 3" />
             </div>
           )}
           {settings.bgGal4 && (
             <div className="gal-item gal-span-4" id="gal4-wrapper">
-              <img src={settings.bgGal4} alt="Gallery Image 4" />
+              <img src={formatBgUrl(settings.bgGal4)} alt="Gallery Image 4" />
             </div>
           )}
           {settings.bgGal5 && (
             <div className="gal-item gal-span-4" id="gal5-wrapper">
-              <img src={settings.bgGal5} alt="Gallery Image 5" />
+              <img src={formatBgUrl(settings.bgGal5)} alt="Gallery Image 5" />
             </div>
           )}
           {settings.bgGal6 && (
             <div className="gal-item gal-span-6" id="gal6-wrapper">
-              <img src={settings.bgGal6} alt="Gallery Image 6" />
+              <img src={formatBgUrl(settings.bgGal6)} alt="Gallery Image 6" />
             </div>
           )}
           {settings.bgGal7 && (
             <div className="gal-item gal-span-6" id="gal7-wrapper">
-              <img src={settings.bgGal7} alt="Gallery Image 7" />
+              <img src={formatBgUrl(settings.bgGal7)} alt="Gallery Image 7" />
             </div>
           )}
         </div>

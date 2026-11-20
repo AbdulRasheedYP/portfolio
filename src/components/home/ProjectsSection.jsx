@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { usePortfolio } from "../../context/PortfolioContext";
+import { formatBgUrl } from "../../constants/fallbackData";
 
 export const ProjectsSection = () => {
   const { projects, settings } = usePortfolio();
@@ -9,7 +10,7 @@ export const ProjectsSection = () => {
   const gridRef = useRef(null);
 
   const projectsStyle = settings.bgProjects
-    ? { backgroundImage: `url('${settings.bgProjects}')` }
+    ? { backgroundImage: `url('${formatBgUrl(settings.bgProjects)}')` }
     : undefined;
 
   const filteredProjects = projects.filter((p) => {
@@ -118,7 +119,7 @@ export const ProjectsSection = () => {
               >
                 <div className="project-img">
                   <img
-                    src={p.image || "/img/project1.png"}
+                    src={formatBgUrl(p.image) || "/img/project1.png"}
                     alt={p.title}
                     onError={(e) => {
                       e.target.onerror = null;

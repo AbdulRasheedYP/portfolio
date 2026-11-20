@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { usePortfolio } from "../context/PortfolioContext";
 import { getProjectById } from "../firebase/services";
+import { formatBgUrl } from "../constants/fallbackData";
 
 export const ProjectDetailsPage = () => {
   const { id } = useParams();
@@ -49,7 +50,7 @@ export const ProjectDetailsPage = () => {
   if (project) {
     if (project.image) {
       galleryItems.push({
-        url: project.image,
+        url: formatBgUrl(project.image),
         title: `${project.title || "Project"} — Overview`,
         desc: project.description || project.longDescription || "Main Cover Image"
       });
@@ -59,20 +60,22 @@ export const ProjectDetailsPage = () => {
       project.images.forEach((imgItem, idx) => {
         if (!imgItem) return;
         if (typeof imgItem === "object" && imgItem.url) {
-          if (!galleryItems.some((g) => g.url === imgItem.url)) {
+          const formatted = formatBgUrl(imgItem.url);
+          if (formatted && !galleryItems.some((g) => g.url === formatted)) {
             galleryItems.push({
-              url: imgItem.url,
+              url: formatted,
               title: imgItem.title || `${project.title || "Project"} — Screenshot ${idx + 1}`,
               desc: imgItem.desc || ""
             });
           }
         } else if (typeof imgItem === "string") {
           const parts = imgItem.split("|");
-          const url = parts[0]?.trim();
+          const rawUrl = parts[0]?.trim();
+          const formatted = formatBgUrl(rawUrl);
           const title = parts[1] ? parts[1].trim() : `${project.title || "Project"} — Screenshot ${idx + 1}`;
           const desc = parts[2] ? parts[2].trim() : "";
-          if (url && !galleryItems.some((g) => g.url === url)) {
-            galleryItems.push({ url, title, desc });
+          if (formatted && !galleryItems.some((g) => g.url === formatted)) {
+            galleryItems.push({ url: formatted, title, desc });
           }
         }
       });

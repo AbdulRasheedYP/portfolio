@@ -4,7 +4,12 @@ import * as Icons from "lucide-react";
 export const DynamicIcon = ({ name, className = "w-5 h-5", color, style = {} }) => {
   if (!name) return <Icons.Code className={className} style={{ color, ...style }} />;
 
-  // Normalize name e.g. "fas fa-code" or "fa-database" or "Server"
+  // If it's a FontAwesome class like "fab fa-github" or "fas fa-code"
+  if (name.startsWith("fa") || name.includes("fa-")) {
+    return <i className={name} style={{ color, ...style }}></i>;
+  }
+
+  // Normalize name e.g. "Server"
   let cleanName = name.replace(/^fa[srb]?\s+fa-/, "").replace(/^fa-/, "");
   // capitalize first letter or match camelCase
   cleanName = cleanName.charAt(0).toUpperCase() + cleanName.slice(1);

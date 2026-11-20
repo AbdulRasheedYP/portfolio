@@ -12,6 +12,16 @@ import {
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "./config";
 
+// Convert file to Base64 Data URL (used as universal fallback)
+export const fileToDataUrl = (file) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = (err) => reject(err);
+    reader.readAsDataURL(file);
+  });
+};
+
 // --- Storage Upload ---
 export const uploadFileToStorage = async (file, path, onProgress) => {
   // Determine content type safely
@@ -26,27 +36,38 @@ export const uploadFileToStorage = async (file, path, onProgress) => {
   const metadata = { contentType };
   const storageRef = ref(storage, path);
 
-  if (onProgress) onProgress(20);
+  if (onProgress) onProgress(30);
 
-  const uploadPromise = (async () => {
-    const snapshot = await uploadBytes(storageRef, file, metadata);
-    if (onProgress) onProgress(80);
-    const downloadUrl = await getDownloadURL(snapshot.ref);
-    if (onProgress) onProgress(100);
-    return downloadUrl;
-  })();
+  // Attempt 1: Try Firebase Storage with a 3.5s fast timeout
+  try {
+    const uploadPromise = (async () => {
+      const snapshot = await uploadBytes(storageRef, file, metadata);
+      if (onProgress) onProgress(80);
+      const downloadUrl = await getDownloadURL(snapshot.ref);
+      if (onProgress) onProgress(100);
+      return downloadUrl;
+    })();
 
-  const timeoutPromise = new Promise((_, reject) => {
-    setTimeout(() => {
-      reject(
-        new Error(
-          "Upload timed out (12s). Firebase Storage is not responding. Please make sure Cloud Storage is activated in Firebase Console (Storage -> 'Get started') and rules are published."
-        )
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error("Storage timeout")), 3500);
+    });
+
+    return await Promise.race([uploadPromise, timeoutPromise]);
+  } catch (storageErr) {
+    console.warn("Firebase Storage unavailable, falling back to direct Data URL:", storageErr);
+
+    // Attempt 2: Instant Base64 Fallback (supports PDFs, resumes, and images up to 1.5MB)
+    if (file.size <= 1.5 * 1024 * 1024) {
+      if (onProgress) onProgress(70);
+      const dataUrl = await fileToDataUrl(file);
+      if (onProgress) onProgress(100);
+      return dataUrl;
+    } else {
+      throw new Error(
+        `File size (${(file.size / (1024 * 1024)).toFixed(1)}MB) exceeds direct storage limit (1.5MB). Please compress the file or enable Cloud Storage in Firebase Console.`
       );
-    }, 12000);
-  });
-
-  return Promise.race([uploadPromise, timeoutPromise]);
+    }
+  }
 };
 
 // --- Settings ---

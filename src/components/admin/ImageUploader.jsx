@@ -17,6 +17,9 @@ export const ImageUploader = ({
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Reset input so re-selecting the same file triggers change
+    e.target.value = "";
+
     setError("");
     setUploading(true);
     setProgress(0);

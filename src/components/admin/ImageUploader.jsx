@@ -32,9 +32,16 @@ export const ImageUploader = ({
     } catch (err) {
       console.error("Upload error:", err);
       const isAuthError = err.code === "storage/unauthorized" || err.message?.includes("unauthorized");
-      const errorMsg = isAuthError
-        ? "Permission Denied: Firebase Storage rules in Firebase Console must allow write access for admin."
-        : (err.message || "Failed to upload file. Please check Firebase Storage rules or network.");
+      const isNetworkOrAdblock = err.message?.includes("Failed to fetch") || (err.name === "TypeError" && !err.code);
+
+      let errorMsg;
+      if (isAuthError) {
+        errorMsg = "Permission Denied (storage/unauthorized): Firebase Storage rules in Firebase Console are blocking upload.";
+      } else if (isNetworkOrAdblock) {
+        errorMsg = "Connection Blocked: If you are using Brave Browser or an Ad-Blocker, please disable Shields/Ad-Blocker for this site.";
+      } else {
+        errorMsg = err.code ? `[${err.code}]: ${err.message}` : (err.message || "Failed to upload file.");
+      }
       setError(errorMsg);
     } finally {
       setUploading(false);

@@ -9,58 +9,29 @@ import {
   serverTimestamp,
   writeBatch
 } from "firebase/firestore";
-import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "./config";
 
 // --- Storage Upload ---
-export const uploadFileToStorage = (file, path, onProgress) => {
-  return new Promise((resolve, reject) => {
-    // Determine content type safely
-    let contentType = file.type;
-    if (!contentType) {
-      if (file.name.toLowerCase().endsWith(".pdf")) contentType = "application/pdf";
-      else if (file.name.toLowerCase().endsWith(".png")) contentType = "image/png";
-      else if (file.name.toLowerCase().endsWith(".jpg") || file.name.toLowerCase().endsWith(".jpeg")) contentType = "image/jpeg";
-      else contentType = "application/octet-stream";
-    }
+export const uploadFileToStorage = async (file, path, onProgress) => {
+  // Determine content type safely
+  let contentType = file.type;
+  if (!contentType) {
+    if (file.name.toLowerCase().endsWith(".pdf")) contentType = "application/pdf";
+    else if (file.name.toLowerCase().endsWith(".png")) contentType = "image/png";
+    else if (file.name.toLowerCase().endsWith(".jpg") || file.name.toLowerCase().endsWith(".jpeg")) contentType = "image/jpeg";
+    else contentType = "application/octet-stream";
+  }
 
-    const metadata = { contentType };
-    const storageRef = ref(storage, path);
-    const uploadTask = uploadBytesResumable(storageRef, file, metadata);
+  const metadata = { contentType };
+  const storageRef = ref(storage, path);
 
-    // Timeout after 25s so the UI never hangs indefinitely if blocked by rules or CORS
-    const timeoutTimer = setTimeout(() => {
-      try {
-        uploadTask.cancel();
-      } catch (e) {}
-      reject(new Error("Upload timed out (25s). Firebase Storage might be blocking uploads or rules require update."));
-    }, 25000);
-
-    uploadTask.on(
-      "state_changed",
-      (snapshot) => {
-        if (snapshot.totalBytes > 0) {
-          const percent = Math.round(
-            (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-          );
-          if (onProgress) onProgress(percent);
-        }
-      },
-      (error) => {
-        clearTimeout(timeoutTimer);
-        reject(error);
-      },
-      async () => {
-        clearTimeout(timeoutTimer);
-        try {
-          const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
-          resolve(downloadUrl);
-        } catch (err) {
-          reject(err);
-        }
-      }
-    );
-  });
+  if (onProgress) onProgress(20);
+  const snapshot = await uploadBytes(storageRef, file, metadata);
+  if (onProgress) onProgress(80);
+  const downloadUrl = await getDownloadURL(snapshot.ref);
+  if (onProgress) onProgress(100);
+  return downloadUrl;
 };
 
 // --- Settings ---

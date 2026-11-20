@@ -765,6 +765,7 @@ export const JourneyTab = () => {
               value={bannerUrl}
               onChange={(url) => setBannerUrl(url)}
               folder="backgrounds"
+              aspectRatio={1140 / 300}
             />
 
             {/* Live Preview Box */}

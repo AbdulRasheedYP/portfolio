@@ -1,17 +1,82 @@
 import React, { useState } from "react";
-import { UploadCloud, Check, AlertCircle, Loader2, FileText, ExternalLink, Trash2 } from "lucide-react";
+import {
+  UploadCloud,
+  Check,
+  AlertCircle,
+  Loader2,
+  FileText,
+  ExternalLink,
+  Trash2,
+  Crop as CropIcon
+} from "lucide-react";
 import { uploadFileToStorage } from "../../firebase/services";
+import { ImageCropModal } from "./ImageCropModal";
 
 export const ImageUploader = ({
   value,
   onChange,
   folder = "portfolio",
   label = "Image URL or Upload",
-  accept = "image/*"
+  accept = "image/*",
+  allowCrop = true,
+  aspectRatio = null
 }) => {
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState("");
+
+  // Crop Modal States
+  const [cropModalOpen, setCropModalOpen] = useState(false);
+  const [cropImageSrc, setCropImageSrc] = useState(null);
+  const [pendingFile, setPendingFile] = useState(null);
+
+  const doUpload = async (fileOrBlob, customFileName) => {
+    setError("");
+    setUploading(true);
+    setProgress(0);
+
+    const originalName =
+      customFileName ||
+      (fileOrBlob instanceof File ? fileOrBlob.name : "image.jpg");
+    const safeName = `${Date.now()}_${originalName.replace(/[^a-zA-Z0-9.]/g, "_")}`;
+    const storagePath = `${folder}/${safeName}`;
+
+    try {
+      const url = await uploadFileToStorage(fileOrBlob, storagePath, (pct) => {
+        setProgress(pct);
+      });
+      onChange(url);
+    } catch (err) {
+      console.error("Upload error:", err);
+      const isAuthError =
+        err.code === "storage/unauthorized" ||
+        err.message?.includes("unauthorized");
+      const isNetworkOrAdblock =
+        err.message?.includes("Failed to fetch") ||
+        (err.name === "TypeError" && !err.code);
+
+      let errorMsg;
+      if (isAuthError) {
+        errorMsg =
+          "Permission Denied (storage/unauthorized): Firebase Storage rules in Firebase Console are blocking upload.";
+      } else if (isNetworkOrAdblock) {
+        errorMsg =
+          "Connection Blocked: If you are using Brave Browser or an Ad-Blocker, please disable Shields/Ad-Blocker for this site.";
+      } else {
+        errorMsg = err.code
+          ? `[${err.code}]: ${err.message}`
+          : err.message || "Failed to upload file.";
+      }
+      setError(errorMsg);
+    } finally {
+      setUploading(false);
+      setPendingFile(null);
+      if (cropImageSrc && cropImageSrc.startsWith("blob:")) {
+        URL.revokeObjectURL(cropImageSrc);
+      }
+      setCropImageSrc(null);
+    }
+  };
 
   const handleFileChange = async (e) => {
     const file = e.target.files?.[0];
@@ -19,39 +84,43 @@ export const ImageUploader = ({
 
     // Reset input so re-selecting the same file triggers change
     e.target.value = "";
-
     setError("");
-    setUploading(true);
-    setProgress(0);
 
-    const safeName = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, "_")}`;
-    const storagePath = `${folder}/${safeName}`;
+    // If it's an image and cropping is enabled, open cropper modal first
+    if (allowCrop && file.type && file.type.startsWith("image/")) {
+      const objUrl = URL.createObjectURL(file);
+      setPendingFile(file);
+      setCropImageSrc(objUrl);
+      setCropModalOpen(true);
+      return;
+    }
 
-    try {
-      const url = await uploadFileToStorage(file, storagePath, (pct) => {
-        setProgress(pct);
-      });
-      onChange(url);
-    } catch (err) {
-      console.error("Upload error:", err);
-      const isAuthError = err.code === "storage/unauthorized" || err.message?.includes("unauthorized");
-      const isNetworkOrAdblock = err.message?.includes("Failed to fetch") || (err.name === "TypeError" && !err.code);
+    // Direct upload otherwise
+    await doUpload(file);
+  };
 
-      let errorMsg;
-      if (isAuthError) {
-        errorMsg = "Permission Denied (storage/unauthorized): Firebase Storage rules in Firebase Console are blocking upload.";
-      } else if (isNetworkOrAdblock) {
-        errorMsg = "Connection Blocked: If you are using Brave Browser or an Ad-Blocker, please disable Shields/Ad-Blocker for this site.";
-      } else {
-        errorMsg = err.code ? `[${err.code}]: ${err.message}` : (err.message || "Failed to upload file.");
-      }
-      setError(errorMsg);
-    } finally {
-      setUploading(false);
+  const handleApplyCrop = async (croppedBlob) => {
+    const filename = pendingFile ? pendingFile.name : "cropped_banner.jpg";
+    await doUpload(croppedBlob, filename);
+  };
+
+  const handleSkipCrop = async () => {
+    setCropModalOpen(false);
+    if (pendingFile) {
+      await doUpload(pendingFile);
     }
   };
 
-  const isPdf = typeof value === "string" && (value.toLowerCase().includes(".pdf") || value.toLowerCase().endsWith(".pdf"));
+  const handleOpenCropOnExisting = () => {
+    if (!value) return;
+    setPendingFile(null);
+    setCropImageSrc(value);
+    setCropModalOpen(true);
+  };
+
+  const isPdf =
+    typeof value === "string" &&
+    (value.toLowerCase().includes(".pdf") || value.toLowerCase().endsWith(".pdf"));
 
   return (
     <div className="space-y-2">
@@ -68,6 +137,19 @@ export const ImageUploader = ({
           placeholder="Paste URL (e.g. https://... or /img/...)"
           className="flex-1 px-4 py-2.5 rounded-xl bg-slate-800/90 border border-white/10 text-white text-sm focus:outline-none focus:border-primary"
         />
+
+        {/* Crop Button for existing image */}
+        {value && !isPdf && allowCrop && (
+          <button
+            type="button"
+            onClick={handleOpenCropOnExisting}
+            className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 text-xs font-semibold transition-colors shrink-0"
+            title="Crop & adjust image framing"
+          >
+            <CropIcon className="w-4 h-4" />
+            <span className="hidden sm:inline">Crop Image</span>
+          </button>
+        )}
 
         {/* Remove / Clear Button */}
         {value && (
@@ -157,16 +239,47 @@ export const ImageUploader = ({
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={() => onChange("")}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors shrink-0 ml-3"
-            title="Remove image"
-          >
-            <Trash2 className="w-4 h-4" />
-          </button>
+          <div className="flex items-center gap-1.5 shrink-0 ml-3">
+            {!isPdf && allowCrop && (
+              <button
+                type="button"
+                onClick={handleOpenCropOnExisting}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-primary hover:bg-primary/10 transition-colors"
+                title="Crop image"
+              >
+                <CropIcon className="w-4 h-4" />
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => onChange("")}
+              className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
+              title="Remove image"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       )}
+
+      {/* Interactive Crop Modal */}
+      <ImageCropModal
+        isOpen={cropModalOpen}
+        imageSrc={cropImageSrc}
+        initialAspect={aspectRatio || undefined}
+        title={aspectRatio ? "Crop & Frame Wide Banner" : "Crop & Refine Image"}
+        onClose={() => {
+          setCropModalOpen(false);
+          setPendingFile(null);
+          if (cropImageSrc && cropImageSrc.startsWith("blob:")) {
+            URL.revokeObjectURL(cropImageSrc);
+          }
+          setCropImageSrc(null);
+        }}
+        onApplyCrop={handleApplyCrop}
+        onSkipCrop={pendingFile ? handleSkipCrop : undefined}
+      />
     </div>
   );
 };
+

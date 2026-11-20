@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Plus,
   Trash2,
@@ -10,14 +10,16 @@ import {
   Layers,
   GraduationCap,
   Sparkles,
-  RefreshCw
+  Image as ImageIcon
 } from "lucide-react";
+import { ImageUploader } from "../ImageUploader";
 import { usePortfolio } from "../../../context/PortfolioContext";
 import { useToast } from "../../../context/ToastContext";
 import {
   addJourneyDoc,
   updateJourneyDoc,
-  deleteJourneyDoc
+  deleteJourneyDoc,
+  updateMediaSettings
 } from "../../../firebase/services";
 import {
   FALLBACK_JOURNEY,
@@ -25,10 +27,18 @@ import {
 } from "../../../constants/fallbackData";
 
 export const JourneyTab = () => {
-  const { journey = [] } = usePortfolio();
+  const { journey = [], settings = {} } = usePortfolio();
   const toast = useToast();
 
-  const [activeSubTab, setActiveSubTab] = useState("sprints"); // "sprints" or "overview"
+  const [activeSubTab, setActiveSubTab] = useState("sprints"); // "sprints", "overview", or "banner"
+  const [bannerUrl, setBannerUrl] = useState(settings?.journeyBanner || "");
+  const [savingBanner, setSavingBanner] = useState(false);
+
+  useEffect(() => {
+    if (settings?.journeyBanner !== undefined) {
+      setBannerUrl(settings.journeyBanner || "");
+    }
+  }, [settings?.journeyBanner]);
 
   // Sprint Form State (Brototype Month-by-Month)
   const [sprintForm, setSprintForm] = useState({
@@ -257,6 +267,24 @@ export const JourneyTab = () => {
     }
   };
 
+  const handleSaveBanner = async (e) => {
+    e.preventDefault();
+    setSavingBanner(true);
+    try {
+      await updateMediaSettings({
+        backgrounds: {
+          journeyBanner: bannerUrl.trim()
+        }
+      });
+      toast.success("Journey bottom wide banner updated successfully!");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to save banner: " + err.message);
+    } finally {
+      setSavingBanner(false);
+    }
+  };
+
   return (
     <div className="space-y-8">
       {/* Header & Tabs */}
@@ -289,7 +317,7 @@ export const JourneyTab = () => {
       </div>
 
       {/* Sub-Navigation Tabs */}
-      <div className="flex items-center gap-3 border-b border-white/10 pb-3">
+      <div className="flex items-center gap-3 border-b border-white/10 pb-3 flex-wrap">
         <button
           type="button"
           onClick={() => setActiveSubTab("sprints")}
@@ -314,6 +342,19 @@ export const JourneyTab = () => {
         >
           <GraduationCap className="w-4 h-4" />
           <span>Main Milestones (B.Com & Overview)</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveSubTab("banner")}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
+            activeSubTab === "banner"
+              ? "bg-primary text-black shadow-md shadow-primary/20"
+              : "bg-slate-800/80 text-slate-300 hover:text-white"
+          }`}
+        >
+          <ImageIcon className="w-4 h-4" />
+          <span>Bottom Wide Banner Image</span>
         </button>
       </div>
 
@@ -702,6 +743,113 @@ export const JourneyTab = () => {
               <p className="text-xs text-slate-300 leading-relaxed">{brototypeDoc.description}</p>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* TAB 3: BOTTOM WIDE BANNER IMAGE */}
+      {activeSubTab === "banner" && (
+        <div className="max-w-3xl">
+          <form onSubmit={handleSaveBanner} className="glass-panel p-6 sm:p-8 rounded-2xl space-y-6">
+            <div>
+              <h3 className="text-base font-bold text-white flex items-center gap-2">
+                <ImageIcon className="w-5 h-5 text-primary" />
+                <span>Journey Bottom Wide Banner Image</span>
+              </h3>
+              <p className="text-xs text-slate-400 mt-1">
+                Upload or enter an image URL to display as a wide cinematic banner under your Journey timeline.
+              </p>
+            </div>
+
+            <ImageUploader
+              label="Banner Image (Upload file or enter URL)"
+              value={bannerUrl}
+              onChange={(url) => setBannerUrl(url)}
+              folder="backgrounds"
+            />
+
+            {/* Quick Presets from Workspace */}
+            <div>
+              <label className="block text-xs font-semibold text-slate-300 mb-2">
+                Or pick from existing workspace photos:
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { name: "Sitting Working", url: "/img/sitting_working.jpeg" },
+                  { name: "Office", url: "/img/office.png" },
+                  { name: "Team Photo", url: "/img/team.jpeg" },
+                  { name: "Working With Lap", url: "/img/working_with_lap.jpg" },
+                  { name: "Desk Setup", url: "/img/lap.jpg" }
+                ].map((preset) => (
+                  <button
+                    key={preset.url}
+                    type="button"
+                    onClick={() => setBannerUrl(preset.url)}
+                    className={`text-xs px-3 py-1.5 rounded-lg border transition-all ${
+                      bannerUrl === preset.url
+                        ? "bg-primary/20 border-primary text-primary font-bold"
+                        : "bg-slate-800/80 border-white/10 text-slate-300 hover:text-white hover:bg-slate-700"
+                    }`}
+                  >
+                    {preset.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Live Preview Box */}
+            {bannerUrl && (
+              <div className="space-y-2">
+                <label className="block text-xs font-semibold text-slate-300">
+                  Banner Live Preview:
+                </label>
+                <div className="relative w-full h-44 rounded-xl overflow-hidden border border-white/10 bg-black/40">
+                  <img
+                    src={bannerUrl}
+                    alt="Banner preview"
+                    className="w-full h-full object-cover object-center"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = "/img/sitting_working.jpeg";
+                    }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20 pointer-events-none" />
+                  <span className="absolute bottom-2 left-3 text-[11px] font-mono text-white/80 bg-black/60 px-2 py-0.5 rounded">
+                    Wide Cinematic Preview
+                  </span>
+                </div>
+              </div>
+            )}
+
+            <div className="pt-2 flex items-center justify-between">
+              <button
+                type="submit"
+                disabled={savingBanner}
+                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl font-semibold text-black bg-primary hover:bg-primary-hover disabled:opacity-60 transition-all text-sm shadow-md shadow-primary/20"
+              >
+                {savingBanner ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Saving Banner...</span>
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>Save Banner Image</span>
+                  </>
+                )}
+              </button>
+
+              {bannerUrl && (
+                <button
+                  type="button"
+                  onClick={() => setBannerUrl("")}
+                  className="text-xs text-red-400 hover:text-red-300 transition-colors"
+                >
+                  Clear Image
+                </button>
+              )}
+            </div>
+          </form>
         </div>
       )}
     </div>

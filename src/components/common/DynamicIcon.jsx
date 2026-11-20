@@ -45,7 +45,8 @@ export const DynamicIcon = ({ name, className = "w-5 h-5", color, style = {} }) 
     Sparkles: Icons.Sparkles
   };
 
-  const IconComponent = Icons[name] || Icons[cleanName] || iconMap[cleanName] || Icons.Code2;
+  const getIcon = (key) => key && Object.prototype.hasOwnProperty.call(Icons, key) ? Icons[key] : null;
+  const IconComponent = getIcon(name) || getIcon(cleanName) || iconMap[cleanName] || Icons.Code2;
 
   return <IconComponent className={className} style={{ color, ...style }} />;
 };

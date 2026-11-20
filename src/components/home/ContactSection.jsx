@@ -12,6 +12,7 @@ export const ContactSection = () => {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [lastSubmitTime, setLastSubmitTime] = useState(0);
 
   const contactStyle = settings.bgContact
     ? { backgroundImage: `url('${formatBgUrl(settings.bgContact)}')` }
@@ -21,16 +22,37 @@ export const ContactSection = () => {
     // If bot filled the honeypot field, fail silently
     if (honeypot) return false;
 
+    // Rate limiting: prevent spam submissions within 30 seconds
+    const now = Date.now();
+    if (now - lastSubmitTime < 30000) {
+      const waitSec = Math.ceil((30000 - (now - lastSubmitTime)) / 1000);
+      setErrors({ form: `Please wait ${waitSec} seconds before sending another message.` });
+      return false;
+    }
+
     const errs = {};
-    if (!formData.name.trim() || formData.name.trim().length < 3) {
+    const trimmedName = formData.name.trim();
+    const trimmedEmail = formData.email.trim();
+    const trimmedMessage = formData.message.trim();
+
+    if (!trimmedName || trimmedName.length < 3) {
       errs.name = "Name must be at least 3 characters";
+    } else if (trimmedName.length > 100) {
+      errs.name = "Name cannot exceed 100 characters";
     }
-    if (!formData.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
+
+    if (!trimmedEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
       errs.email = "Enter a valid email address";
+    } else if (trimmedEmail.length > 254) {
+      errs.email = "Email cannot exceed 254 characters";
     }
-    if (!formData.message.trim() || formData.message.trim().length < 10) {
+
+    if (!trimmedMessage || trimmedMessage.length < 10) {
       errs.message = "Message must be at least 10 characters";
+    } else if (trimmedMessage.length > 3000) {
+      errs.message = "Message cannot exceed 3000 characters";
     }
+
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -40,6 +62,7 @@ export const ContactSection = () => {
     if (!validate()) return;
 
     setIsSubmitting(true);
+    const now = Date.now();
 
     try {
       // 1. Save to Firestore
@@ -54,6 +77,7 @@ export const ContactSection = () => {
       }
 
       // 2. Submit to Web3Forms async
+      const web3FormsKey = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY || "6685fd8d-d317-4ea9-b4ca-f84c505d940c";
       try {
         await fetch("https://api.web3forms.com/submit", {
           method: "POST",
@@ -62,7 +86,7 @@ export const ContactSection = () => {
             Accept: "application/json"
           },
           body: JSON.stringify({
-            access_key: "6685fd8d-d317-4ea9-b4ca-f84c505d940c",
+            access_key: web3FormsKey,
             name: formData.name.trim(),
             email: formData.email.trim(),
             message: formData.message.trim(),
@@ -72,6 +96,9 @@ export const ContactSection = () => {
       } catch (err) {
         console.warn("Web3Forms forward notice:", err);
       }
+
+      // Record successful submit time for rate limiting
+      setLastSubmitTime(now);
 
       // Trigger Confetti
       confetti({
@@ -173,10 +200,11 @@ export const ContactSection = () => {
                   type="text"
                   name="name"
                   required
+                  maxLength={100}
                   value={formData.name}
                   onChange={(e) => {
                     setFormData({ ...formData, name: e.target.value });
-                    if (errors.name) setErrors({ ...errors, name: "" });
+                    if (errors.name || errors.form) setErrors({ ...errors, name: "", form: "" });
                   }}
                 />
                 <label className="floating-label">Your Name</label>
@@ -189,10 +217,11 @@ export const ContactSection = () => {
                   type="email"
                   name="email"
                   required
+                  maxLength={254}
                   value={formData.email}
                   onChange={(e) => {
                     setFormData({ ...formData, email: e.target.value });
-                    if (errors.email) setErrors({ ...errors, email: "" });
+                    if (errors.email || errors.form) setErrors({ ...errors, email: "", form: "" });
                   }}
                 />
                 <label className="floating-label">Your Email</label>
@@ -205,16 +234,23 @@ export const ContactSection = () => {
                   name="message"
                   rows={4}
                   required
+                  maxLength={3000}
                   value={formData.message}
                   onChange={(e) => {
                     setFormData({ ...formData, message: e.target.value });
-                    if (errors.message) setErrors({ ...errors, message: "" });
+                    if (errors.message || errors.form) setErrors({ ...errors, message: "", form: "" });
                   }}
                 ></textarea>
                 <label className="floating-label">Your Message</label>
                 <span className="form-underline"></span>
                 <small className="error-msg">{errors.message}</small>
               </div>
+
+              {errors.form && (
+                <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">
+                  {errors.form}
+                </div>
+              )}
 
               <button type="submit" className="btn btn-filled" disabled={isSubmitting}>
                 <span>{isSubmitting ? "Sending..." : "Send Message"}</span>

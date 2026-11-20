@@ -5,10 +5,7 @@ import {
   setDoc,
   updateDoc,
   deleteDoc,
-  getDocs,
   getDoc,
-  query,
-  orderBy,
   serverTimestamp,
   writeBatch
 } from "firebase/firestore";

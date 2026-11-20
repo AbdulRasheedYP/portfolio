@@ -7,18 +7,7 @@ import {
   updateServiceDoc,
   deleteServiceDoc
 } from "../../../firebase/services";
-
-export const sanitizeIcon = (raw) => {
-  const s = (raw || "").trim();
-  // Extract class if written inside an HTML tag like <i class="fas fa-server"></i>
-  const match = s.match(/class=["']([^"']+)["']/);
-  if (match) return match[1].trim();
-  // Strip angle brackets if any
-  if (s.includes("<") || s.includes(">")) {
-    return s.replace(/<[^>]+>/g, "").trim();
-  }
-  return s;
-};
+import { sanitizeIcon } from "../../../utils/iconUtils";
 
 export const ServicesTab = () => {
   const { services } = usePortfolio();

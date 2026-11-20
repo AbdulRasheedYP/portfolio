@@ -6,8 +6,7 @@ import {
   Loader2,
   ExternalLink,
   Github,
-  Image as ImageIcon,
-  Layers
+  Image as ImageIcon
 } from "lucide-react";
 import { usePortfolio } from "../../../context/PortfolioContext";
 import { useToast } from "../../../context/ToastContext";

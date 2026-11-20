@@ -31,14 +31,14 @@ export const AboutSection = () => {
                 />
               </div>
             </div>
-            <h3 style={{ marginTop: "24px" }}>Python Full-Stack Developer</h3>
+            <h3 style={{ marginTop: "24px" }}>Python Backend Developer</h3>
             <div id="dyn-about" style={{ whiteSpace: "pre-line" }}>
               {settings.about ||
-                `I'm a commerce graduate transitioning into software development, currently focused on building practical web applications using Python.
+                `Python Backend Developer with hands-on project experience building API-driven applications using Python, Django, Django REST Framework, and PostgreSQL.
 
-I train at Brototype, where my learning is fully project-driven — writing real code, solving real problems, and following industry-level development practices.
+Alongside backend development, I focus on LLM-powered application engineering, including LLM API integration, function calling, and multi-step agent workflows that connect language models with application logic and tools.
 
-My goal is to become a job-ready full-stack developer with strong fundamentals in backend development, databases, and clean frontend design.`}
+My technical foundation also includes secure authentication, relational data design, frontend integration, and production deployment using AWS EC2, Gunicorn, and Nginx.`}
             </div>
             <div className="about-buttons">
               <a href="#projects" className="btn btn-filled">
@@ -46,7 +46,7 @@ My goal is to become a job-ready full-stack developer with strong fundamentals i
                 <i className="fas fa-arrow-right"></i>
               </a>
               <a
-                href={settings.resumeUrl || "/img/AbdulrasheedCV.pdf"}
+                href={settings.resumeUrl || "/img/AbdulRasheedCV_new.pdf"}
                 className="btn btn-outline"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -63,22 +63,22 @@ My goal is to become a job-ready full-stack developer with strong fundamentals i
               <div className="stat-icon">
                 <i className="fas fa-graduation-cap"></i>
               </div>
-              <span className="stat-title">Background</span>
+              <span className="stat-title">Education</span>
               <span className="stat-value">B.Com Graduate</span>
             </div>
             <div className="stat-card">
               <div className="stat-icon">
                 <i className="fas fa-code"></i>
               </div>
-              <span className="stat-title">Current Track</span>
-              <span className="stat-value">Python Full-Stack</span>
+              <span className="stat-title">Core Focus</span>
+              <span className="stat-value">Python & Backend</span>
             </div>
             <div className="stat-card">
               <div className="stat-icon">
-                <i className="fas fa-project-diagram"></i>
+                <i className="fas fa-brain"></i>
               </div>
-              <span className="stat-title">Learning Style</span>
-              <span className="stat-value">Project Based</span>
+              <span className="stat-title">Specialization</span>
+              <span className="stat-value">AI & API Systems</span>
             </div>
             <div className="stat-card">
               <div className="stat-icon">

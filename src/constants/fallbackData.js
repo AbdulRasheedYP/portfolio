@@ -1,18 +1,18 @@
 export const FALLBACK_SETTINGS = {
   subtitle: "Hello, I'm",
   name: "Abdul Rasheed YP",
-  roles: "Python Full-Stack Developer, Django Developer, Backend Specialist, Web Developer",
-  heroDesc: "I build scalable, robust, and user-friendly web applications. Passionate about Python, backend architecture, and continuous learning.",
-  about: `I'm a commerce graduate transitioning into software development, currently focused on building practical web applications using Python.
+  roles: "Python Backend Developer, Backend Engineering, AI Systems Integration, Django & DRF Specialist, Cloud & PostgreSQL",
+  heroDesc: "Python Backend Developer specializing in API-driven applications, relational database architecture, and LLM-powered multi-step agent workflows. Experienced in Django, DRF, PostgreSQL, and AWS EC2 deployment.",
+  about: `Python Backend Developer with hands-on project experience building API-driven applications using Python, Django, Django REST Framework, and PostgreSQL.
 
-I train at Brototype, where my learning is fully project-driven — writing real code, solving real problems, and following industry-level development practices.
+Alongside backend development, I focus on LLM-powered application engineering, including LLM API integration, function calling, and multi-step agent workflows that connect language models with application logic and tools.
 
-My goal is to become a job-ready full-stack developer with strong fundamentals in backend development, databases, and clean frontend design.`,
+My technical foundation also includes secure authentication, relational data design, frontend integration, and production deployment using AWS EC2, Gunicorn, and Nginx.`,
   phone: "+91 9778106863",
   email: "abdulrasheed5140@gmail.com",
-  location: "Malappuram, Kerala, India",
+  location: "Kerala, India",
   profileImg: "/img/profile-pic.png",
-  resumeUrl: "/img/AbdulrasheedCV.pdf",
+  resumeUrl: "/img/AbdulRasheedCV_new.pdf",
   freelanceState: "available",
   bgHero: "/img/working_with_lap.jpg",
   bgAbout: "/img/working_with_lap.jpg",
@@ -59,27 +59,31 @@ export const formatBgStyle = (url) => {
 export const FALLBACK_SKILLS = [
   { id: "sk-python", name: "Python", icon: "Code2", color: "#3776AB", order: 1 },
   { id: "sk-django", name: "Django", icon: "Server", color: "#092E20", order: 2 },
-  { id: "sk-postgres", name: "PostgreSQL", icon: "Database", color: "#336791", order: 3 },
-  { id: "sk-js", name: "JavaScript", icon: "FileCode2", color: "#F7DF1E", order: 4 },
-  { id: "sk-react", name: "React", icon: "Atom", color: "#00d9ff", order: 5 },
-  { id: "sk-html", name: "HTML5 & CSS3", icon: "Layout", color: "#E34F26", order: 6 },
-  { id: "sk-tailwind", name: "Tailwind CSS", icon: "Palette", color: "#06B6D4", order: 7 },
-  { id: "sk-git", name: "Git & GitHub", icon: "GitBranch", color: "#F05032", order: 8 },
-  { id: "sk-rest", name: "REST APIs", icon: "Network", color: "#a855f7", order: 9 }
+  { id: "sk-drf", name: "Django REST Framework", icon: "Network", color: "#a855f7", order: 3 },
+  { id: "sk-postgres", name: "PostgreSQL & SQL", icon: "Database", color: "#336791", order: 4 },
+  { id: "sk-ai-llm", name: "LLM & AI Integration", icon: "Cpu", color: "#10B981", order: 5 },
+  { id: "sk-agentic", name: "Agentic AI & Function Calling", icon: "Sparkles", color: "#06B6D4", order: 6 },
+  { id: "sk-aws", name: "AWS EC2 & Linux", icon: "Globe", color: "#FF9900", order: 7 },
+  { id: "sk-nginx", name: "Gunicorn & Nginx", icon: "Server", color: "#009639", order: 8 },
+  { id: "sk-testing", name: "Pytest & Postman", icon: "CheckCircle", color: "#EC4899", order: 9 },
+  { id: "sk-react", name: "React.js", icon: "Atom", color: "#00d9ff", order: 10 },
+  { id: "sk-js", name: "JavaScript", icon: "FileCode2", color: "#F7DF1E", order: 11 },
+  { id: "sk-tailwind", name: "Tailwind CSS", icon: "Palette", color: "#38BDF8", order: 12 },
+  { id: "sk-git", name: "Git & GitHub", icon: "GitBranch", color: "#F05032", order: 13 }
 ];
 
 export const FALLBACK_SERVICES = [
   {
     id: "srv-backend",
-    title: "Backend Development",
-    description: "Building robust, secure, and scalable server-side systems and RESTful APIs using Python, Django, and modern best practices.",
+    title: "Backend Engineering",
+    description: "Building robust, secure, and scalable server-side systems and RESTful APIs using Python, Django, and Django REST Framework.",
     icon: "Server"
   },
   {
-    id: "srv-fullstack",
-    title: "Full-Stack Web Apps",
-    description: "End-to-end modern web applications combining responsive frontend experiences with well-architected backend services.",
-    icon: "Globe"
+    id: "srv-ai",
+    title: "AI Systems & LLM Integration",
+    description: "Developing LLM-powered applications, function calling, and multi-step agent workflows that connect language models to application logic.",
+    icon: "Cpu"
   },
   {
     id: "srv-database",
@@ -88,10 +92,10 @@ export const FALLBACK_SERVICES = [
     icon: "Database"
   },
   {
-    id: "srv-api",
-    title: "API Development & Integration",
-    description: "Designing clean REST APIs and integrating third-party services, payment gateways, and authentication protocols.",
-    icon: "Cpu"
+    id: "srv-cloud",
+    title: "API Development & Cloud Deployment",
+    description: "Implementing secure JWT authentication, access control mechanisms, and deploying production environments using AWS EC2, Gunicorn, and Nginx.",
+    icon: "Globe"
   }
 ];
 
@@ -136,9 +140,9 @@ export const FALLBACK_PROJECTS = [
 ];
 
 export const FALLBACK_SOCIALS = [
-  { id: "soc-gh", name: "GitHub", url: "https://github.com/Rashi0099", icon: "Github" },
-  { id: "soc-li", name: "LinkedIn", url: "https://www.linkedin.com/", icon: "Linkedin" },
-  { id: "soc-em", name: "Email", url: "mailto:abdulrasheed5140@gmail.com", icon: "Mail" }
+  { id: "soc-gh", name: "GitHub", url: "https://github.com/AbdulRasheedYP", icon: "fab fa-github" },
+  { id: "soc-li", name: "LinkedIn", url: "https://www.linkedin.com/in/abdulrasheedyp/", icon: "fab fa-linkedin" },
+  { id: "soc-em", name: "Email", url: "mailto:abdulrasheed5140@gmail.com", icon: "fas fa-envelope" }
 ];
 
 export const DEFAULT_BROTOTYPE_SPRINTS = [
@@ -189,7 +193,7 @@ export const FALLBACK_JOURNEY = [
     id: "j-bcom",
     period: "2022 — 2025",
     title: "Bachelor of Commerce (B.Com)",
-    subtitle: "Calicut University • Analytical & Business Operations",
+    subtitle: "Sullamussalam Science College • University of Calicut | 2025",
     badge: "Academic Foundation",
     type: "academic",
     current: false,
@@ -202,16 +206,16 @@ export const FALLBACK_JOURNEY = [
   {
     id: "j-brototype",
     period: "2025 — Present",
-    title: "Python Full-Stack Developer Trainee",
-    subtitle: "Brototype • 100% Project-Driven Tech Immersion",
-    badge: "Active Trainee",
+    title: "Software Development Training Program",
+    subtitle: "Brototype • Duration: 2 Years | Intensive Project-Driven Training",
+    badge: "Active Developer",
     type: "tech",
     current: true,
     order: 2,
     icon: "Code2",
     description:
       "Undergoing intensive project-driven software development training, architecting full-stack web applications, database schemas, REST APIs, and production deployment.",
-    skills: ["Python & Django", "PostgreSQL", "REST APIs", "AWS EC2 & Linux"],
+    skills: ["Python & Django", "DRF & PostgreSQL", "LLM Integration", "AWS EC2 & Linux"],
     sprints: DEFAULT_BROTOTYPE_SPRINTS
   }
 ];

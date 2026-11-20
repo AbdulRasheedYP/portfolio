@@ -158,7 +158,7 @@ export const ContactSection = () => {
                   <h4>Location</h4>
                   <p>
                     <span id="dyn-location">
-                      {settings.location || "Malappuram, Kerala, India"}
+                      {settings.location || "Kerala, India"}
                     </span>
                   </p>
                 </div>

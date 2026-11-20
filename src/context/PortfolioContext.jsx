@@ -12,9 +12,18 @@ import {
 
 const PortfolioContext = createContext(null);
 
+const CACHE_VERSION = "cv_sync_v2";
 const getCachedData = (key, fallback) => {
   if (typeof window === "undefined") return fallback;
   try {
+    const currentVer = localStorage.getItem("portfolio_cache_version");
+    if (currentVer !== CACHE_VERSION) {
+      // Invalidate old local cache so new CV alignments take effect immediately
+      const keysToClear = ["settings", "skills", "services", "socials", "journey"];
+      keysToClear.forEach((k) => localStorage.removeItem(`portfolio_${k}`));
+      localStorage.setItem("portfolio_cache_version", CACHE_VERSION);
+      return fallback;
+    }
     const item = localStorage.getItem(`portfolio_${key}`);
     if (item) {
       const parsed = JSON.parse(item);

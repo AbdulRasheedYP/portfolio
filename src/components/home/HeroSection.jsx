@@ -8,7 +8,7 @@ export const HeroSection = () => {
 
   const rolesList = settings.roles
     ? settings.roles.split(",").map((r) => r.trim()).filter(Boolean)
-    : ["Python Full-Stack Developer", "Django Specialist", "Web Developer"];
+    : ["Python Backend Developer", "Backend Engineer", "AI Systems Integration", "Django & DRF Specialist", "Python Full-Stack"];
 
   const typedRole = useTypewriter(rolesList, 85, 45, 1700);
 
@@ -25,14 +25,14 @@ export const HeroSection = () => {
             {settings.name || "Abdul Rasheed YP"}
           </h1>
           <h2>
-            <span id="typed-text">{typedRole || "Python Full-Stack Developer"}</span>
+            <span id="typed-text">{typedRole || "Python Backend Developer"}</span>
             <span id="dyn-roles" style={{ display: "none" }}>
-              {settings.roles || "Python Full-Stack Developer"}
+              {settings.roles || "Python Backend Developer"}
             </span>
           </h2>
           <p id="dyn-hero-desc">
             {settings.heroDesc ||
-              "I build scalable and user-friendly web applications. Passionate about coding, technology, and continuous learning."}
+              "Python Backend Developer specializing in API-driven applications, relational database architecture, and LLM-powered multi-step agent workflows. Experienced in Django, DRF, PostgreSQL, and AWS EC2 deployment."}
           </p>
           <div className="hero-btns">
             <a href="#projects" className="btn btn-filled">

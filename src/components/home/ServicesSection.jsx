@@ -17,7 +17,9 @@ export const ServicesSection = () => {
       Cpu: "fas fa-microchip",
       Code: "fas fa-code",
       Code2: "fas fa-code",
-      Layout: "fas fa-columns"
+      Layout: "fas fa-columns",
+      Brain: "fas fa-brain",
+      Sparkles: "fas fa-brain"
     };
     return map[icon] || "fas fa-code";
   };

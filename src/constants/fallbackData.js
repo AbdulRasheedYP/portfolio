@@ -138,3 +138,43 @@ export const FALLBACK_SOCIALS = [
   { id: "soc-li", name: "LinkedIn", url: "https://www.linkedin.com/", icon: "Linkedin" },
   { id: "soc-em", name: "Email", url: "mailto:abdulrasheed5140@gmail.com", icon: "Mail" }
 ];
+
+export const FALLBACK_JOURNEY = [
+  {
+    id: "j-brototype",
+    period: "2025 – Present",
+    role: "Python Full-Stack Developer Trainee",
+    organization: "Brototype",
+    badge: "Intensive Tech Immersion",
+    current: true,
+    icon: "fas fa-laptop-code",
+    color: "#00d9ff",
+    description:
+      "Undergoing rigorous project-driven software development training focusing on production-grade Python architectures, real-world database design, and end-to-end web deployment.",
+    highlights: [
+      "Built production-ready e-commerce systems featuring automated wallet refunds, promotional offer coupon engines, cart & wishlist logic, and custom administration panels.",
+      "Hands-on expertise with Django framework, PostgreSQL relational schema modeling, and RESTful API architecture.",
+      "Practical cloud deployment on AWS EC2 with Nginx reverse proxy and Gunicorn.",
+      "Daily problem-solving, code reviews, and Git collaboration adhering to industry-level standards."
+    ],
+    skills: ["Python", "Django", "PostgreSQL", "REST APIs", "AWS EC2", "Nginx", "Git"]
+  },
+  {
+    id: "j-bcom",
+    period: "2022 – 2025",
+    role: "Bachelor of Commerce (B.Com)",
+    organization: "Undergraduate Degree",
+    badge: "Foundation in Analytics",
+    current: false,
+    icon: "fas fa-graduation-cap",
+    color: "#a855f7",
+    description:
+      "Graduated with a solid foundation in commercial operations, financial data analysis, and business management. This background provides a distinct advantage in architecting robust business logic and real-world application workflows.",
+    highlights: [
+      "Developed sharp analytical thinking and structured quantitative problem-solving abilities.",
+      "Gained deep insight into business processes, financial transactions, and workflow optimization.",
+      "Disciplined approach to deadlines, documentation, and continuous self-improvement."
+    ],
+    skills: ["Business Logic", "Analytical Reasoning", "Financial Data", "Workflow Design"]
+  }
+];

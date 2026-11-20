@@ -6,7 +6,8 @@ import {
   FALLBACK_SKILLS,
   FALLBACK_SERVICES,
   FALLBACK_PROJECTS,
-  FALLBACK_SOCIALS
+  FALLBACK_SOCIALS,
+  FALLBACK_JOURNEY
 } from "../constants/fallbackData";
 
 const PortfolioContext = createContext(null);
@@ -42,6 +43,7 @@ export const PortfolioProvider = ({ children }) => {
   const [services, setServices] = useState(() => getCachedData("services", FALLBACK_SERVICES));
   const [projects, setProjects] = useState(() => getCachedData("projects", FALLBACK_PROJECTS));
   const [socials, setSocials] = useState(() => getCachedData("socials", FALLBACK_SOCIALS));
+  const [journey, setJourney] = useState(() => getCachedData("journey", FALLBACK_JOURNEY));
   const [isLiveSynced, setIsLiveSynced] = useState(false);
 
   useEffect(() => {
@@ -188,6 +190,7 @@ export const PortfolioProvider = ({ children }) => {
         services,
         projects,
         socials,
+        journey,
         isLiveSynced
       }}
     >

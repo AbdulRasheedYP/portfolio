@@ -9,7 +9,7 @@ export const Navbar = () => {
   const isHomePage = location.pathname === "/";
 
   const activeSection = useScrollSpy(
-    ["home", "about", "skills", "services", "projects", "contact"],
+    ["home", "about", "journey", "skills", "services", "projects", "contact"],
     120
   );
 
@@ -91,6 +91,15 @@ export const Navbar = () => {
               className={`nav-link ${isHomePage && activeSection === "about" ? "active" : ""}`}
             >
               About
+            </a>
+          </li>
+          <li>
+            <a
+              href="#journey"
+              onClick={(e) => handleLinkClick(e, "#journey")}
+              className={`nav-link ${isHomePage && activeSection === "journey" ? "active" : ""}`}
+            >
+              Journey
             </a>
           </li>
           <li>

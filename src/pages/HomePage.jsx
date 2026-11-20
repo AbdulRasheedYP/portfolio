@@ -5,6 +5,7 @@ import { ScrollToTop } from "../components/common/ScrollToTop";
 import { Footer } from "../components/common/Footer";
 import { HeroSection } from "../components/home/HeroSection";
 import { AboutSection } from "../components/home/AboutSection";
+import { JourneySection } from "../components/home/JourneySection";
 import { SkillsSection } from "../components/home/SkillsSection";
 import { ServicesSection } from "../components/home/ServicesSection";
 import { ProjectsSection } from "../components/home/ProjectsSection";
@@ -24,6 +25,7 @@ export const HomePage = () => {
       <main>
         <HeroSection />
         <AboutSection />
+        <JourneySection />
         <SkillsSection />
         <ServicesSection />
         <ProjectsSection />

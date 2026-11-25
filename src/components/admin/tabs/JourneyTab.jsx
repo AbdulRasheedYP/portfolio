@@ -27,7 +27,7 @@ import {
 } from "../../../constants/fallbackData";
 
 export const JourneyTab = () => {
-  const { journey = [], settings = {} } = usePortfolio();
+  const { journey = [], setJourney, settings = {} } = usePortfolio();
   const toast = useToast();
 
   const [activeSubTab, setActiveSubTab] = useState("sprints"); // "sprints", "overview", or "banner"
@@ -52,6 +52,7 @@ export const JourneyTab = () => {
   const [editingSprint, setEditingSprint] = useState(null);
   const [submittingSprint, setSubmittingSprint] = useState(false);
   const [deletingSprintId, setDeletingSprintId] = useState(null);
+  const [sprintToDelete, setSprintToDelete] = useState(null);
 
   // Main Milestone Form State (B.Com / Brototype Overview)
   const [overviewForm, setOverviewForm] = useState({
@@ -130,11 +131,16 @@ export const JourneyTab = () => {
 
     setSubmittingSprint(true);
     try {
-      if (editingSprint && editingSprint.id && !editingSprint.id.startsWith("sp-")) {
-        // Existing Firestore Document
-        await updateJourneyDoc(editingSprint.id, payload);
+      const targetId = editingSprint ? (editingSprint.firestoreId || editingSprint.id) : null;
+      const isExistingInDb = targetId && sprintDocs.some(
+        (d) => (d.firestoreId || d.id) === targetId
+      );
+
+      if (isExistingInDb) {
+        // Update existing document in Firestore
+        await updateJourneyDoc(targetId, payload);
         toast.success(`Updated "${sprintForm.period}: ${sprintForm.title}"!`);
-      } else if (editingSprint && editingSprint.id && editingSprint.id.startsWith("sp-") && sprintDocs.length === 0) {
+      } else if (editingSprint && sprintDocs.length === 0) {
         // First-time edit of default: persist all default sprints while applying the user's edits
         for (const def of DEFAULT_BROTOTYPE_SPRINTS) {
           if (def.id === editingSprint.id) {
@@ -159,15 +165,34 @@ export const JourneyTab = () => {
     }
   };
 
-  const handleDeleteSprint = async (item) => {
-    if (!window.confirm(`Delete "${item.period}: ${item.title}" from timeline?`)) return;
+  const handleDeleteSprintClick = (item) => {
+    setSprintToDelete(item);
+  };
 
-    setDeletingSprintId(item.id);
+  const handleConfirmDeleteSprint = async () => {
+    if (!sprintToDelete) return;
+    const item = sprintToDelete;
+    const targetId = item.firestoreId || item.id;
+    setDeletingSprintId(targetId);
+
     try {
-      if (item.id && !item.id.startsWith("sp-")) {
-        await deleteJourneyDoc(item.id);
+      // Check if document exists in Firestore
+      const isExistingInDb = sprintDocs.some(
+        (d) => (d.firestoreId || d.id) === targetId
+      );
+
+      if (isExistingInDb) {
+        // Optimistic UI state update so item vanishes immediately (0ms)
+        if (setJourney) {
+          setJourney((prev) =>
+            Array.isArray(prev)
+              ? prev.filter((j) => (j.firestoreId || j.id) !== targetId)
+              : []
+          );
+        }
+        await deleteJourneyDoc(targetId);
       } else if (sprintDocs.length === 0) {
-        // Persist all other defaults to Firebase except this deleted one
+        // If deleting a default sprint for the first time, save the remaining defaults to DB
         for (const def of DEFAULT_BROTOTYPE_SPRINTS) {
           if (def.id !== item.id) {
             const { id: _ignore, ...rest } = def;
@@ -175,13 +200,16 @@ export const JourneyTab = () => {
           }
         }
       }
-      if (editingSprint && editingSprint.id === item.id) {
+
+      if (editingSprint && (editingSprint.firestoreId || editingSprint.id) === targetId) {
         handleCancelSprintEdit();
       }
-      toast.success(`Deleted "${item.period}"`);
+
+      toast.success(`Deleted "${item.period}: ${item.title}"`);
+      setSprintToDelete(null);
     } catch (err) {
-      console.error(err);
-      toast.error("Failed to delete: " + err.message);
+      console.error("Delete sprint error:", err);
+      toast.error("Failed to delete sprint: " + err.message);
     } finally {
       setDeletingSprintId(null);
     }
@@ -251,8 +279,9 @@ export const JourneyTab = () => {
 
     setSubmittingOverview(true);
     try {
-      if (editingMilestone.id && !editingMilestone.id.startsWith("j-")) {
-        await updateJourneyDoc(editingMilestone.id, payload);
+      const targetId = editingMilestone.firestoreId || editingMilestone.id;
+      if (targetId) {
+        await updateJourneyDoc(targetId, payload);
         toast.success(`Updated "${overviewForm.title}"!`);
       } else {
         await addJourneyDoc(payload);
@@ -261,7 +290,7 @@ export const JourneyTab = () => {
       setEditingMilestone(null);
     } catch (err) {
       console.error(err);
-      toast.error("Failed to save: " + err.message);
+      toast.error("Failed to save milestone: " + err.message);
     } finally {
       setSubmittingOverview(false);
     }
@@ -540,6 +569,7 @@ export const JourneyTab = () => {
 
                     <div className="flex items-center gap-1.5 flex-shrink-0">
                       <button
+                        type="button"
                         onClick={() => handleStartEditSprint(item)}
                         className="p-1.5 rounded-lg text-slate-400 hover:text-primary hover:bg-white/5 transition-colors"
                         title="Edit sprint"
@@ -547,12 +577,13 @@ export const JourneyTab = () => {
                         <Edit3 className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => handleDeleteSprint(item)}
-                        disabled={deletingSprintId === item.id}
+                        type="button"
+                        onClick={() => handleDeleteSprintClick(item)}
+                        disabled={deletingSprintId === (item.firestoreId || item.id)}
                         className="p-1.5 rounded-lg text-slate-400 hover:text-red-400 hover:bg-white/5 transition-colors disabled:opacity-50"
                         title="Delete sprint"
                       >
-                        {deletingSprintId === item.id ? (
+                        {deletingSprintId === (item.firestoreId || item.id) ? (
                           <Loader2 className="w-4 h-4 animate-spin text-red-400" />
                         ) : (
                           <Trash2 className="w-4 h-4" />
@@ -822,6 +853,60 @@ export const JourneyTab = () => {
               )}
             </div>
           </form>
+        </div>
+      )}
+
+      {/* In-App Delete Confirmation Modal (immune to browser window.confirm suppression) */}
+      {sprintToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+          <div className="bg-slate-900 border border-white/10 rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center gap-3 text-red-400">
+              <div className="p-2.5 rounded-xl bg-red-500/10 border border-red-500/20">
+                <Trash2 className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-white">Delete Sprint</h3>
+                <p className="text-xs text-slate-400">Remove from career timeline</p>
+              </div>
+            </div>
+
+            <p className="text-sm text-slate-300 leading-relaxed">
+              Are you sure you want to delete{" "}
+              <span className="font-semibold text-white">
+                "{sprintToDelete.period}: {sprintToDelete.title}"
+              </span>{" "}
+              from your timeline? This will delete the sprint from both your live portfolio and database.
+            </p>
+
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setSprintToDelete(null)}
+                disabled={Boolean(deletingSprintId)}
+                className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white bg-white/5 hover:bg-white/10 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmDeleteSprint}
+                disabled={Boolean(deletingSprintId)}
+                className="inline-flex items-center gap-2 px-5 py-2 rounded-xl text-xs font-bold text-white bg-red-600 hover:bg-red-500 disabled:opacity-50 transition-colors shadow-lg shadow-red-600/30"
+              >
+                {deletingSprintId ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>Deleting...</span>
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Yes, Delete</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

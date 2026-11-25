@@ -374,18 +374,24 @@ export const addJourneyDoc = async (journeyData) => {
 };
 
 export const updateJourneyDoc = async (id, journeyData) => {
+  if (!id) throw new Error("Document ID is required for update");
   const docRef = doc(db, "journey", id);
-  await updateDoc(docRef, {
-    ...journeyData,
-    updatedAt: serverTimestamp()
-  });
+  await setDoc(
+    docRef,
+    {
+      ...journeyData,
+      updatedAt: serverTimestamp()
+    },
+    { merge: true }
+  );
 };
 
 export const updateJourneyOrder = async (orderedMilestones) => {
   const batch = writeBatch(db);
   orderedMilestones.forEach((item, index) => {
-    if (item.id) {
-      const docRef = doc(db, "journey", item.id);
+    const targetId = item.firestoreId || item.id;
+    if (targetId) {
+      const docRef = doc(db, "journey", targetId);
       batch.update(docRef, {
         order: index + 1,
         updatedAt: serverTimestamp()
@@ -396,6 +402,7 @@ export const updateJourneyOrder = async (orderedMilestones) => {
 };
 
 export const deleteJourneyDoc = async (id) => {
+  if (!id) throw new Error("Document ID is required for deletion");
   await deleteDoc(doc(db, "journey", id));
 };
 

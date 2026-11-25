@@ -231,7 +231,7 @@ export const PortfolioProvider = ({ children }) => {
           if (!snapshot.empty) {
             const list = [];
             snapshot.forEach((docSnap) => {
-              list.push({ id: docSnap.id, ...docSnap.data() });
+              list.push({ ...docSnap.data(), id: docSnap.id, firestoreId: docSnap.id });
             });
             list.sort((a, b) => (Number(a.order) || 999) - (Number(b.order) || 999));
             const upgraded = sanitizeSkills(list);
@@ -251,7 +251,7 @@ export const PortfolioProvider = ({ children }) => {
           if (!snapshot.empty) {
             const list = [];
             snapshot.forEach((docSnap) => {
-              list.push({ id: docSnap.id, ...docSnap.data() });
+              list.push({ ...docSnap.data(), id: docSnap.id, firestoreId: docSnap.id });
             });
             const upgraded = sanitizeServices(list);
             setServices(upgraded);
@@ -270,7 +270,7 @@ export const PortfolioProvider = ({ children }) => {
           if (!snapshot.empty) {
             const list = [];
             snapshot.forEach((docSnap) => {
-              list.push({ id: docSnap.id, ...docSnap.data() });
+              list.push({ ...docSnap.data(), id: docSnap.id, firestoreId: docSnap.id });
             });
             setProjects(list);
             setCachedData("projects", list);
@@ -288,7 +288,7 @@ export const PortfolioProvider = ({ children }) => {
           if (!snapshot.empty) {
             const list = [];
             snapshot.forEach((docSnap) => {
-              list.push({ id: docSnap.id, ...docSnap.data() });
+              list.push({ ...docSnap.data(), id: docSnap.id, firestoreId: docSnap.id });
             });
             const upgraded = sanitizeSocials(list);
             setSocials(upgraded);
@@ -306,7 +306,7 @@ export const PortfolioProvider = ({ children }) => {
           if (!snapshot.empty) {
             const list = [];
             snapshot.forEach((docSnap) => {
-              list.push({ id: docSnap.id, ...docSnap.data() });
+              list.push({ ...docSnap.data(), id: docSnap.id, firestoreId: docSnap.id });
             });
             list.sort((a, b) => (Number(a.order) || 999) - (Number(b.order) || 999));
             const upgraded = sanitizeJourney(list);
@@ -338,6 +338,12 @@ export const PortfolioProvider = ({ children }) => {
         projects,
         socials,
         journey,
+        setJourney,
+        setSkills,
+        setServices,
+        setProjects,
+        setSocials,
+        setSettings,
         isLiveSynced
       }}
     >

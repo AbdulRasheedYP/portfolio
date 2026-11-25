@@ -221,27 +221,7 @@ export const syncAllDataWithCV = async (
     }
   }
 
-  // 3. Skills
-  if (Array.isArray(cvSkills)) {
-    for (const sk of cvSkills) {
-      const skRef = doc(db, "skills", sk.id);
-      promises.push(
-        setDoc(skRef, { ...sk, updatedAt: serverTimestamp() }, { merge: true })
-      );
-    }
-  }
-
-  // 4. Services
-  if (Array.isArray(cvServices)) {
-    for (const srv of cvServices) {
-      const srvRef = doc(db, "services", srv.id);
-      promises.push(
-        setDoc(srvRef, { ...srv, updatedAt: serverTimestamp() }, { merge: true })
-      );
-    }
-  }
-
-  // 5. Journey Milestones
+  // 3. Journey Milestones (Academic & Tech headers - does not overwrite custom sprints)
   if (Array.isArray(cvJourney)) {
     for (const jm of cvJourney) {
       const { sprints: _sp, ...payload } = jm;
@@ -303,8 +283,9 @@ export const updateSkillDoc = async (id, skillData) => {
 export const updateSkillsOrder = async (orderedSkills) => {
   const batch = writeBatch(db);
   orderedSkills.forEach((skill, index) => {
-    if (skill.id) {
-      const docRef = doc(db, "skills", skill.id);
+    const targetId = skill.firestoreId || skill.id;
+    if (targetId) {
+      const docRef = doc(db, "skills", targetId);
       batch.update(docRef, {
         order: index + 1,
         updatedAt: serverTimestamp()
@@ -315,6 +296,7 @@ export const updateSkillsOrder = async (orderedSkills) => {
 };
 
 export const deleteSkillDoc = async (id) => {
+  if (!id) throw new Error("Document ID is required for deletion");
   await deleteDoc(doc(db, "skills", id));
 };
 

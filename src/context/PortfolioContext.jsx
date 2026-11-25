@@ -111,29 +111,11 @@ const sanitizeSocials = (list) => {
 
 const sanitizeSkills = (list) => {
   if (!Array.isArray(list) || list.length === 0) return FALLBACK_SKILLS;
-  const hasAI = list.some((s) => s.name?.includes("LLM") || s.name?.includes("AI"));
-  const hasDRF = list.some((s) => s.name?.includes("Django REST Framework") || s.name === "DRF");
-  if (!hasAI || !hasDRF) {
-    const existingNames = new Set(list.map((s) => s.name?.toLowerCase()));
-    const missing = FALLBACK_SKILLS.filter(
-      (fs) => !existingNames.has(fs.name?.toLowerCase())
-    );
-    return [...list, ...missing].sort(
-      (a, b) => (Number(a.order) || 99) - (Number(b.order) || 99)
-    );
-  }
   return list;
 };
 
 const sanitizeServices = (list) => {
   if (!Array.isArray(list) || list.length === 0) return FALLBACK_SERVICES;
-  const hasAI = list.some((s) => s.title?.includes("AI"));
-  if (!hasAI) {
-    const aiService = FALLBACK_SERVICES.find((s) => s.id === "srv-ai");
-    if (aiService) {
-      return [list[0], aiService, ...list.slice(1)];
-    }
-  }
   return list;
 };
 

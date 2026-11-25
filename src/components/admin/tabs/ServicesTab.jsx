@@ -10,7 +10,7 @@ import {
 import { sanitizeIcon } from "../../../utils/iconUtils";
 
 export const ServicesTab = () => {
-  const { services } = usePortfolio();
+  const { services, setServices } = usePortfolio();
   const toast = useToast();
 
   const [formData, setFormData] = useState({
@@ -55,7 +55,8 @@ export const ServicesTab = () => {
     try {
       if (editingService) {
         // Update existing service
-        await updateServiceDoc(editingService.id, {
+        const targetId = editingService.firestoreId || editingService.id;
+        await updateServiceDoc(targetId, {
           title: formData.title.trim(),
           description: formData.description.trim(),
           icon: cleanIcon
@@ -87,10 +88,14 @@ export const ServicesTab = () => {
   const handleDeleteService = async (service) => {
     if (!window.confirm(`Are you sure you want to delete "${service.title}"?`)) return;
 
-    setDeletingId(service.id);
+    const targetId = service.firestoreId || service.id;
+    setDeletingId(targetId);
     try {
-      await deleteServiceDoc(service.id);
-      if (editingService && editingService.id === service.id) {
+      if (setServices) {
+        setServices((prev) => prev.filter((s) => (s.firestoreId || s.id) !== targetId));
+      }
+      await deleteServiceDoc(targetId);
+      if (editingService && (editingService.firestoreId || editingService.id) === targetId) {
         handleCancelEdit();
       }
       toast.success(`Service "${service.title}" deleted`);

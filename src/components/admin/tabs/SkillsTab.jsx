@@ -11,7 +11,7 @@ import {
 import { sanitizeIcon } from "../../../utils/iconUtils";
 
 export const SkillsTab = () => {
-  const { skills } = usePortfolio();
+  const { skills, setSkills } = usePortfolio();
   const toast = useToast();
 
   const [formData, setFormData] = useState({
@@ -81,7 +81,8 @@ export const SkillsTab = () => {
     try {
       if (editingSkill) {
         // Update existing skill
-        await updateSkillDoc(editingSkill.id, {
+        const targetId = editingSkill.firestoreId || editingSkill.id;
+        await updateSkillDoc(targetId, {
           name: formData.name.trim(),
           icon: cleanIcon,
           color: formData.color,
@@ -123,16 +124,24 @@ export const SkillsTab = () => {
   const handleDeleteSkill = async (skill) => {
     if (!window.confirm(`Are you sure you want to delete "${skill.name}"?`)) return;
 
-    setDeletingId(skill.id);
+    const targetId = skill.firestoreId || skill.id;
+    setDeletingId(targetId);
     try {
-      await deleteSkillDoc(skill.id);
-      if (editingSkill && editingSkill.id === skill.id) {
+      // Optimistic update of local UI and global context
+      setLocalSkills((prev) => prev.filter((s) => (s.firestoreId || s.id) !== targetId));
+      if (setSkills) {
+        setSkills((prev) => prev.filter((s) => (s.firestoreId || s.id) !== targetId));
+      }
+
+      await deleteSkillDoc(targetId);
+      if (editingSkill && (editingSkill.firestoreId || editingSkill.id) === targetId) {
         handleCancelEdit();
       }
       toast.success(`Skill "${skill.name}" deleted`);
     } catch (err) {
       console.error(err);
       toast.error("Failed to delete skill: " + err.message);
+      setLocalSkills([...skills]);
     } finally {
       setDeletingId(null);
     }
@@ -469,11 +478,11 @@ export const SkillsTab = () => {
                         <button
                           type="button"
                           onClick={() => handleDeleteSkill(skill)}
-                          disabled={deletingId === skill.id}
+                          disabled={deletingId === (skill.firestoreId || skill.id)}
                           className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
                           title="Delete Skill"
                         >
-                          {deletingId === skill.id ? (
+                          {deletingId === (skill.firestoreId || skill.id) ? (
                             <Loader2 className="w-4 h-4 animate-spin" />
                           ) : (
                             <Trash2 className="w-4 h-4" />

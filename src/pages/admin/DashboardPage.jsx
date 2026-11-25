@@ -29,7 +29,7 @@ export const DashboardPage = () => {
   const handleSyncCV = async () => {
     if (
       !window.confirm(
-        "Sync all portfolio settings, skills, services, and socials to match your latest CV in Firebase?"
+        "Sync profile headline, bio, roles, resume link, and socials to match your latest CV? (Your custom skills and services will remain untouched)."
       )
     ) {
       return;
@@ -38,13 +38,13 @@ export const DashboardPage = () => {
     try {
       await syncAllDataWithCV(
         FALLBACK_SETTINGS,
-        FALLBACK_SKILLS,
-        FALLBACK_SERVICES,
+        null,
+        null,
         FALLBACK_SOCIALS,
         FALLBACK_JOURNEY
       );
       toast.success(
-        "Successfully synchronized all Firebase database documents with your latest CV!"
+        "Profile bio, roles, resume link, and socials successfully synced with CV!"
       );
     } catch (err) {
       console.error(err);
@@ -120,7 +120,7 @@ export const DashboardPage = () => {
                   </span>
                 </h4>
                 <p className="text-xs text-slate-400 mt-0.5">
-                  Permanently save your latest CV headline, bio, skills, and links to Firebase Firestore so they never revert.
+                  Update your profile headline, bio, roles, and links from your latest CV without affecting your custom skills or projects.
                 </p>
               </div>
             </div>

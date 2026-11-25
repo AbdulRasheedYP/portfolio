@@ -12,7 +12,8 @@ export const JourneySection = () => {
   const { settings = {}, journey = [] } = usePortfolio();
   const journeyStyle = formatBgStyle(settings.bgJourney);
 
-  const displayList = Array.isArray(journey) && journey.length > 0
+  const isDbInitialized = Array.isArray(journey) && journey.length > 0;
+  const displayList = isDbInitialized
     ? journey
     : [...FALLBACK_JOURNEY, ...DEFAULT_BROTOTYPE_SPRINTS];
 
@@ -26,7 +27,9 @@ export const JourneySection = () => {
     ? [...sprintDocs].sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0))
     : Array.isArray(brototype.sprints) && brototype.sprints.length > 0
     ? brototype.sprints
-    : DEFAULT_BROTOTYPE_SPRINTS;
+    : !isDbInitialized
+    ? DEFAULT_BROTOTYPE_SPRINTS
+    : [];
 
   return (
     <section id="journey" className="section journey" style={journeyStyle}>
@@ -114,66 +117,68 @@ export const JourneySection = () => {
               )}
 
               {/* Sub-Timeline: Month-by-Month Progression Line */}
-              <div className="brototype-subtimeline">
-                <div className="subtimeline-header">
-                  <div className="subtimeline-header-left">
-                    <span className="subtimeline-badge-dot"></span>
-                    <span className="subtimeline-heading">Curriculum & Learning Track</span>
+              {sprints.length > 0 && (
+                <div className="brototype-subtimeline">
+                  <div className="subtimeline-header">
+                    <div className="subtimeline-header-left">
+                      <span className="subtimeline-badge-dot"></span>
+                      <span className="subtimeline-heading">Curriculum & Learning Track</span>
+                    </div>
+                    <span className="subtimeline-count">{sprints.length} Sprints</span>
                   </div>
-                  <span className="subtimeline-count">{sprints.length} Sprints</span>
-                </div>
 
-                <div className="subtimeline-track">
-                  {sprints.map((sprint, idx) => (
-                    <div
-                      key={sprint.id || idx}
-                      className={`subtimeline-step ${
-                        sprint.current ? "subtimeline-step-active" : ""
-                      }`}
-                    >
-                      {/* Node on the sub-timeline line */}
-                      <div className="subtimeline-node">
-                        {sprint.current ? (
-                          <span className="subtimeline-node-active-dot"></span>
-                        ) : (
-                          <span className="subtimeline-node-num">{idx + 1}</span>
-                        )}
-                      </div>
-
-                      {/* Step Content */}
-                      <div className="subtimeline-body">
-                        <div className="subtimeline-meta">
-                          <span className="subtimeline-period">{sprint.period}</span>
-                          {sprint.current && (
-                            <span className="subtimeline-active-badge">In Progress</span>
+                  <div className="subtimeline-track">
+                    {sprints.map((sprint, idx) => (
+                      <div
+                        key={sprint.id || idx}
+                        className={`subtimeline-step ${
+                          sprint.current ? "subtimeline-step-active" : ""
+                        }`}
+                      >
+                        {/* Node on the sub-timeline line */}
+                        <div className="subtimeline-node">
+                          {sprint.current ? (
+                            <span className="subtimeline-node-active-dot"></span>
+                          ) : (
+                            <span className="subtimeline-node-num">{idx + 1}</span>
                           )}
                         </div>
 
-                        <h4 className="subtimeline-title">{sprint.title}</h4>
-
-                        {sprint.description && (
-                          <p className="subtimeline-desc">{sprint.description}</p>
-                        )}
-
-                        {Array.isArray(sprint.skills) && sprint.skills.length > 0 && (
-                          <div className="subtimeline-tags">
-                            {sprint.skills.map((skill, sIdx) => (
-                              <span
-                                key={sIdx}
-                                className={`subtimeline-tag ${
-                                  sprint.current ? "subtimeline-tag-active" : ""
-                                }`}
-                              >
-                                {skill}
-                              </span>
-                            ))}
+                        {/* Step Content */}
+                        <div className="subtimeline-body">
+                          <div className="subtimeline-meta">
+                            <span className="subtimeline-period">{sprint.period}</span>
+                            {sprint.current && (
+                              <span className="subtimeline-active-badge">In Progress</span>
+                            )}
                           </div>
-                        )}
+
+                          <h4 className="subtimeline-title">{sprint.title}</h4>
+
+                          {sprint.description && (
+                            <p className="subtimeline-desc">{sprint.description}</p>
+                          )}
+
+                          {Array.isArray(sprint.skills) && sprint.skills.length > 0 && (
+                            <div className="subtimeline-tags">
+                              {sprint.skills.map((skill, sIdx) => (
+                                <span
+                                  key={sIdx}
+                                  className={`subtimeline-tag ${
+                                    sprint.current ? "subtimeline-tag-active" : ""
+                                  }`}
+                                >
+                                  {skill}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </div>

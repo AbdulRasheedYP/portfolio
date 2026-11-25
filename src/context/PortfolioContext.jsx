@@ -13,6 +13,15 @@ import {
 const PortfolioContext = createContext(null);
 
 const CACHE_VERSION = "cv_sync_v2";
+export const setCachedData = (key, data) => {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(`portfolio_${key}`, JSON.stringify(data));
+  } catch (err) {
+    // Quota exceeded or storage unavailable
+  }
+};
+
 const getCachedData = (key, fallback) => {
   if (typeof window === "undefined") return fallback;
   try {
@@ -25,24 +34,15 @@ const getCachedData = (key, fallback) => {
       return fallback;
     }
     const item = localStorage.getItem(`portfolio_${key}`);
-    if (item) {
+    if (item !== null) {
       const parsed = JSON.parse(item);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-      if (parsed && typeof parsed === "object" && Object.keys(parsed).length > 0) return parsed;
+      if (Array.isArray(parsed)) return parsed;
+      if (parsed && typeof parsed === "object") return parsed;
     }
   } catch (err) {
     console.warn(`Error reading cached ${key}:`, err);
   }
   return fallback;
-};
-
-const setCachedData = (key, data) => {
-  if (typeof window === "undefined") return;
-  try {
-    localStorage.setItem(`portfolio_${key}`, JSON.stringify(data));
-  } catch (err) {
-    // Quota exceeded or storage unavailable
-  }
 };
 
 // Sanitizers to prevent obsolete database documents from overwriting new CV data
@@ -110,17 +110,17 @@ const sanitizeSocials = (list) => {
 };
 
 const sanitizeSkills = (list) => {
-  if (!Array.isArray(list) || list.length === 0) return FALLBACK_SKILLS;
+  if (!Array.isArray(list)) return [];
   return list;
 };
 
 const sanitizeServices = (list) => {
-  if (!Array.isArray(list) || list.length === 0) return FALLBACK_SERVICES;
+  if (!Array.isArray(list)) return [];
   return list;
 };
 
 const sanitizeJourney = (list) => {
-  if (!Array.isArray(list) || list.length === 0) return FALLBACK_JOURNEY;
+  if (!Array.isArray(list)) return [];
   return list.map((item) => {
     if (item.type === "academic" && (!item.subtitle || !item.subtitle.includes("Sullamussalam"))) {
       return {
@@ -210,17 +210,15 @@ export const PortfolioProvider = ({ children }) => {
       const unsubSkills = onSnapshot(
         collection(db, "skills"),
         (snapshot) => {
-          if (!snapshot.empty) {
-            const list = [];
-            snapshot.forEach((docSnap) => {
-              list.push({ ...docSnap.data(), id: docSnap.id, firestoreId: docSnap.id });
-            });
-            list.sort((a, b) => (Number(a.order) || 999) - (Number(b.order) || 999));
-            const upgraded = sanitizeSkills(list);
-            setSkills(upgraded);
-            setCachedData("skills", upgraded);
-            setIsLiveSynced(true);
-          }
+          const list = [];
+          snapshot.forEach((docSnap) => {
+            list.push({ ...docSnap.data(), id: docSnap.id, firestoreId: docSnap.id });
+          });
+          list.sort((a, b) => (Number(a.order) || 999) - (Number(b.order) || 999));
+          const upgraded = sanitizeSkills(list);
+          setSkills(upgraded);
+          setCachedData("skills", upgraded);
+          setIsLiveSynced(true);
         },
         (err) => console.warn("Firestore skills notice:", err.message)
       );
@@ -230,16 +228,14 @@ export const PortfolioProvider = ({ children }) => {
       const unsubServices = onSnapshot(
         collection(db, "services"),
         (snapshot) => {
-          if (!snapshot.empty) {
-            const list = [];
-            snapshot.forEach((docSnap) => {
-              list.push({ ...docSnap.data(), id: docSnap.id, firestoreId: docSnap.id });
-            });
-            const upgraded = sanitizeServices(list);
-            setServices(upgraded);
-            setCachedData("services", upgraded);
-            setIsLiveSynced(true);
-          }
+          const list = [];
+          snapshot.forEach((docSnap) => {
+            list.push({ ...docSnap.data(), id: docSnap.id, firestoreId: docSnap.id });
+          });
+          const upgraded = sanitizeServices(list);
+          setServices(upgraded);
+          setCachedData("services", upgraded);
+          setIsLiveSynced(true);
         },
         (err) => console.warn("Firestore services notice:", err.message)
       );
@@ -249,15 +245,13 @@ export const PortfolioProvider = ({ children }) => {
       const unsubProjects = onSnapshot(
         collection(db, "projects"),
         (snapshot) => {
-          if (!snapshot.empty) {
-            const list = [];
-            snapshot.forEach((docSnap) => {
-              list.push({ ...docSnap.data(), id: docSnap.id, firestoreId: docSnap.id });
-            });
-            setProjects(list);
-            setCachedData("projects", list);
-            setIsLiveSynced(true);
-          }
+          const list = [];
+          snapshot.forEach((docSnap) => {
+            list.push({ ...docSnap.data(), id: docSnap.id, firestoreId: docSnap.id });
+          });
+          setProjects(list);
+          setCachedData("projects", list);
+          setIsLiveSynced(true);
         },
         (err) => console.warn("Firestore projects notice:", err.message)
       );
@@ -267,15 +261,13 @@ export const PortfolioProvider = ({ children }) => {
       const unsubSocials = onSnapshot(
         collection(db, "socials"),
         (snapshot) => {
-          if (!snapshot.empty) {
-            const list = [];
-            snapshot.forEach((docSnap) => {
-              list.push({ ...docSnap.data(), id: docSnap.id, firestoreId: docSnap.id });
-            });
-            const upgraded = sanitizeSocials(list);
-            setSocials(upgraded);
-            setCachedData("socials", upgraded);
-          }
+          const list = [];
+          snapshot.forEach((docSnap) => {
+            list.push({ ...docSnap.data(), id: docSnap.id, firestoreId: docSnap.id });
+          });
+          const upgraded = sanitizeSocials(list);
+          setSocials(upgraded);
+          setCachedData("socials", upgraded);
         },
         (err) => console.warn("Firestore socials notice:", err.message)
       );
@@ -285,19 +277,14 @@ export const PortfolioProvider = ({ children }) => {
       const unsubJourney = onSnapshot(
         collection(db, "journey"),
         (snapshot) => {
-          if (!snapshot.empty) {
-            const list = [];
-            snapshot.forEach((docSnap) => {
-              list.push({ ...docSnap.data(), id: docSnap.id, firestoreId: docSnap.id });
-            });
-            list.sort((a, b) => (Number(a.order) || 999) - (Number(b.order) || 999));
-            const upgraded = sanitizeJourney(list);
-            setJourney(upgraded);
-            setCachedData("journey", upgraded);
-          } else {
-            setJourney(FALLBACK_JOURNEY);
-            setCachedData("journey", FALLBACK_JOURNEY);
-          }
+          const list = [];
+          snapshot.forEach((docSnap) => {
+            list.push({ ...docSnap.data(), id: docSnap.id, firestoreId: docSnap.id });
+          });
+          list.sort((a, b) => (Number(a.order) || 999) - (Number(b.order) || 999));
+          const upgraded = sanitizeJourney(list);
+          setJourney(upgraded);
+          setCachedData("journey", upgraded);
         },
         (err) => console.warn("Firestore journey notice:", err.message)
       );
@@ -326,6 +313,7 @@ export const PortfolioProvider = ({ children }) => {
         setProjects,
         setSocials,
         setSettings,
+        setCachedData,
         isLiveSynced
       }}
     >

@@ -10,7 +10,9 @@ import {
   Layers,
   GraduationCap,
   Sparkles,
-  Image as ImageIcon
+  Image as ImageIcon,
+  RefreshCw,
+  AlertTriangle
 } from "lucide-react";
 import { ImageUploader } from "../ImageUploader";
 import { usePortfolio } from "../../../context/PortfolioContext";
@@ -27,7 +29,7 @@ import {
 } from "../../../constants/fallbackData";
 
 export const JourneyTab = () => {
-  const { journey = [], setJourney, settings = {} } = usePortfolio();
+  const { journey = [], setJourney, setCachedData, settings = {} } = usePortfolio();
   const toast = useToast();
 
   const [activeSubTab, setActiveSubTab] = useState("sprints"); // "sprints", "overview", or "banner"
@@ -70,8 +72,11 @@ export const JourneyTab = () => {
 
   // Extract Sprints and Milestones
   const sprintDocs = Array.isArray(journey) ? journey.filter((j) => j.type === "sprint") : [];
+  const isDbInitialized = Array.isArray(journey) && journey.length > 0;
   const activeSprints = sprintDocs.length > 0
     ? [...sprintDocs].sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0))
+    : isDbInitialized
+    ? []
     : DEFAULT_BROTOTYPE_SPRINTS;
 
   const academicDoc = Array.isArray(journey)
@@ -176,29 +181,24 @@ export const JourneyTab = () => {
     setDeletingSprintId(targetId);
 
     try {
-      // Check if document exists in Firestore
-      const isExistingInDb = sprintDocs.some(
-        (d) => (d.firestoreId || d.id) === targetId
-      );
+      // 1. Optimistic UI update + sync localStorage immediately
+      if (setJourney) {
+        setJourney((prev) => {
+          const next = Array.isArray(prev)
+            ? prev.filter((j) => (j.firestoreId || j.id) !== targetId)
+            : [];
+          if (setCachedData) setCachedData("journey", next);
+          return next;
+        });
+      }
 
-      if (isExistingInDb) {
-        // Optimistic UI state update so item vanishes immediately (0ms)
-        if (setJourney) {
-          setJourney((prev) =>
-            Array.isArray(prev)
-              ? prev.filter((j) => (j.firestoreId || j.id) !== targetId)
-              : []
-          );
-        }
+      // 2. Delete from Firestore
+      if (targetId && !targetId.startsWith("sp-")) {
         await deleteJourneyDoc(targetId);
-      } else if (sprintDocs.length === 0) {
-        // If deleting a default sprint for the first time, save the remaining defaults to DB
-        for (const def of DEFAULT_BROTOTYPE_SPRINTS) {
-          if (def.id !== item.id) {
-            const { id: _ignore, ...rest } = def;
-            await addJourneyDoc(rest);
-          }
-        }
+      } else {
+        try {
+          await deleteJourneyDoc(targetId);
+        } catch (_) {}
       }
 
       if (editingSprint && (editingSprint.firestoreId || editingSprint.id) === targetId) {
@@ -212,6 +212,23 @@ export const JourneyTab = () => {
       toast.error("Failed to delete sprint: " + err.message);
     } finally {
       setDeletingSprintId(null);
+    }
+  };
+
+  const handleRestoreDefaultSprints = async () => {
+    if (!window.confirm("Restore the 4 default monthly curriculum sprints to Firebase?")) return;
+    setSeeding(true);
+    try {
+      for (const sp of DEFAULT_BROTOTYPE_SPRINTS) {
+        const { id: _sId, ...sprintPayload } = sp;
+        await addJourneyDoc({ ...sprintPayload, type: "sprint" });
+      }
+      toast.success("Default 4 Sprints saved to Firebase!");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to restore sprints: " + err.message);
+    } finally {
+      setSeeding(false);
     }
   };
 
@@ -538,7 +555,27 @@ export const JourneyTab = () => {
             </div>
 
             <div className="space-y-3">
-              {activeSprints.map((item, idx) => (
+              {activeSprints.length === 0 ? (
+                <div className="p-8 rounded-2xl bg-slate-900/60 border border-white/5 text-center space-y-3">
+                  <div className="w-12 h-12 rounded-xl bg-slate-800/80 border border-white/10 flex items-center justify-center mx-auto text-slate-400">
+                    <Milestone className="w-6 h-6 text-primary/70" />
+                  </div>
+                  <h4 className="text-sm font-bold text-white">No Monthly Sprints on Timeline</h4>
+                  <p className="text-xs text-slate-400 max-w-sm mx-auto">
+                    All monthly sprints have been deleted or none are configured. You can add a new sprint above or restore the default curriculum.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={handleRestoreDefaultSprints}
+                    disabled={seeding}
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold text-primary bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-all mt-2"
+                  >
+                    {seeding ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
+                    <span>Restore Default 4 Sprints to Firebase</span>
+                  </button>
+                </div>
+              ) : (
+                activeSprints.map((item, idx) => (
                 <div
                   key={item.id || idx}
                   className={`p-4 rounded-xl border transition-all ${
@@ -611,7 +648,7 @@ export const JourneyTab = () => {
                     </div>
                   )}
                 </div>
-              ))}
+              )))}
             </div>
           </div>
         </div>
